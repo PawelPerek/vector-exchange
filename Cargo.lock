@@ -356,9 +356,9 @@ dependencies = [
 
 [[package]]
 name = "eeric"
-version = "0.0.9"
+version = "0.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "63c1208a90eff77e365b4715b412a172ce41baf4e24217c839a781e685f9d200"
+checksum = "b2ab93acdb2eb1919b68d9634a440b765212f2f570bbe3ef903a9b1071154fcf"
 dependencies = [
  "itertools 0.11.0",
  "num-traits",
@@ -366,9 +366,9 @@ dependencies = [
 
 [[package]]
 name = "eeric-interpreter"
-version = "0.0.3"
+version = "0.0.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "063fd7def1ae4e8d5a2506655454a80410a36e3307f1c6ab002227ab6199ed23"
+checksum = "4828a27ce9b49d0dbc180a6cfb522a956a9c247bed91df83b98abbd3d20269af"
 dependencies = [
  "eeric",
 ]
@@ -991,6 +991,18 @@ dependencies = [
  "libc",
  "wasi",
  "windows-sys",
+]
+
+[[package]]
+name = "monaco"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d1b882423fc90db4603ce73a57e64dd568a66ee6776ac09a91bb05622cf6c1e3"
+dependencies = [
+ "js-sys",
+ "paste",
+ "wasm-bindgen",
+ "web-sys",
 ]
 
 [[package]]
@@ -1901,11 +1913,12 @@ dependencies = [
 
 [[package]]
 name = "vector-exchange"
-version = "0.0.0"
+version = "0.0.1"
 dependencies = [
  "eeric",
  "eeric-interpreter",
  "leptos",
+ "monaco",
 ]
 
 [[package]]

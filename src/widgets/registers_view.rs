@@ -1,44 +1,12 @@
+mod integer_registers;
+mod float_registers;
+mod scalar_register;
+
 use eeric::prelude::*;
 use leptos::*;
 
-fn xreg_name(index: usize) -> String {
-    match index {
-        0 => "x0(zero)",
-        1 => "x1(ra)",
-        2 => "x2(sp)",
-        3 => "x3(gp)",
-        4 => "x4(tp)",
-        5 => "x5(t0)",
-        6 => "x6(t1)",
-        7 => "x7(t2)",
-        8 => "x8(s0/fp)",
-        9 => "x9(s1)",
-        10 => "x10(a0)",
-        11 => "x11(a1)",
-        12 => "x12(a2)",
-        13 => "x13(a3)",
-        14 => "x14(a4)",
-        15 => "x15(a5)",
-        16 => "x16(a6)",
-        17 => "x17(a7)",
-        18 => "x18(s2)",
-        19 => "x19(s3)",
-        20 => "x20(s4)",
-        21 => "x21(s5)",
-        22 => "x22(s6)",
-        23 => "x23(s7)",
-        24 => "x24(s8)",
-        25 => "x25(s9)",
-        26 => "x26(s10)",
-        27 => "x27(s11)",
-        28 => "x28(t3)",
-        29 => "x29(t4)",
-        30 => "x30(t5)",
-        31 => "x31(t6)",
-        _ => "?",
-    }
-    .to_owned()
-}
+use integer_registers::IntegerRegisters;
+use float_registers::FloatRegisters;
 
 #[component]
 pub fn RegistersView(
@@ -48,27 +16,21 @@ pub fn RegistersView(
     view! {
         cx,
         <div
-            class="grow"
+            style="grid-area: reg"
+            class="flex flex-col justify-around items-center bg-gray-200"
         >
             Registers View
             {move ||
                 match registers_snapshot() {
                     None => view! { cx, <div>Registers not loaded</div> },
-                    Some(snapshot) => view! {cx, 
-                        <div class="grid grid-cols-8">
-                            {snapshot.x.into_iter().enumerate().map(|(index, value)| {
-                                view! {
-                                    cx,
-                                    <div class="border-gray-700 border-2 rounded divide-y">
-                                        <div>{ value }</div>
-                                        <div>{ xreg_name(index) }</div>
-                                    </div>
-                                }
-                            }).collect::<Vec<_>>()}
+                    Some(snapshot) => view! {cx,
+                        <div>
+                            <IntegerRegisters x_regs=snapshot.x/>
+                            <FloatRegisters f_regs=snapshot.f/>
                         </div>
+                    }
                 }
             }
-        }
-    </div>
+        </div>
     }
 }

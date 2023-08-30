@@ -1,6 +1,9 @@
+mod editor;
+
 use eeric::prelude::*;
 use eeric_interpreter::prelude::*;
 use leptos::{*, leptos_dom::log};
+use editor::Editor;
 
 #[component]
 pub fn ProgramView(cx: Scope, snapshot: RwSignal<Option<RegistersSnapshot>>) -> impl IntoView {
@@ -13,28 +16,24 @@ pub fn ProgramView(cx: Scope, snapshot: RwSignal<Option<RegistersSnapshot>>) -> 
         snapshot.set(machine().map(|m| m.registers_snapshot()));
     });
 
-    let is_started = move || machine.get().is_some();
-
     view! {
         cx,
         <div
-            class="grow flex flex-col justify-center items-center content-center gap-6"
+            style="grid-area: pro"
+            class="flex flex-col justify-center items-center content-center"
         >
-            <textarea
-                class="w-10/12 h-2/3 rounded-xl"
-                on:input=move |ev| { 
-                    set_code(event_target_value(&ev));
-                }
-                prop:value=code
-                >
-            </textarea>
+            <Editor set_code=set_code/>
             <div
-                class="flex w-10/12 justify-between"
+                class="flex w-full px-4 py-8 justify-between border-t-gray-300 border-2"
             >
                 <ResetButton machine=machine />
 
                 {move || match machine() {
-                    None => view! {cx, <StartButton code=code set_machine=machine.write_only() />},
+                    None => view! {cx, <StartButton 
+                        code=code 
+                        set_machine=machine.write_only() 
+                        set_errors=set_errors
+                        />},
                     Some(_) => view! {cx, <StepButton set_machine=machine.write_only() set_snapshot=snapshot.write_only() />}
                 }}
 
@@ -62,14 +61,25 @@ fn ResetButton(cx: Scope, machine: RwSignal<Option<RvCore>>) -> impl IntoView {
 }
 
 #[component]
-fn StartButton(cx: Scope, code: ReadSignal<String>, set_machine: WriteSignal<Option<RvCore>>) -> impl IntoView {
+fn StartButton(
+    cx: Scope, 
+    code: ReadSignal<String>, 
+    set_machine: WriteSignal<Option<RvCore>>, 
+    set_errors: WriteSignal<Vec<String>>
+) -> impl IntoView {
     view! {
         cx,
         <button
-            class="rounded border inline-block w-fit content p-3 px-4 shadow-lg"
+            class="rounded border inline-block w-fit content py-3 px-4 shadow-lg"
             on:click=move |_| {
                 let instructions = Interpreter::compile(code());
-                set_machine(Some(RvCore::with_instructions(instructions)));
+                match instructions {
+                    Err(vec) => set_errors(vec.into_iter().map(|(_line, message)| message).collect::<Vec<_>>()),
+                    Ok(instructions) => {
+                        log!("{:?}", &instructions);
+                        set_machine(Some(RvCore::with_instructions(instructions)));
+                    }
+                }
             }>
             Start
         </button>
@@ -87,9 +97,11 @@ fn StepButton(cx: Scope, set_machine: WriteSignal<Option<RvCore>>, set_snapshot:
                     let regs = machine.as_mut().unwrap().step();
                     
                     log!("{:?}", regs.as_ref().map(|r| r.x));
+                    log!("{:?}", regs.as_ref().map(|r| r.pc));
 
                     if regs.is_none() {
                         set_machine(None);
+                        set_snapshot(None);
                     }
 
                     set_snapshot(regs);

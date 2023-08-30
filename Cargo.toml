@@ -1,16 +1,17 @@
 [package]
 name = "vector-exchange"
-version = "0.0.0"
+version = "0.0.1"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [profile.release]
 lto = true
-opt-level = 's'
+opt-level = 'z'
 codegen-units = 1
 
 [dependencies]
 leptos = { version = "0.4.10", features = ["csr", "nightly"] }
-eeric = "0.0.9"
-eeric-interpreter = "0.0.3"
+eeric = "0.0.14"
+eeric-interpreter = "0.0.10"
+monaco = "0.3.0"
