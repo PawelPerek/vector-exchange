@@ -1,5 +1,7 @@
 mod editor;
 
+use std::collections::HashMap;
+
 use eeric::prelude::*;
 use eeric_interpreter::prelude::*;
 use leptos::{*, leptos_dom::log};
@@ -10,10 +12,15 @@ pub fn ProgramView(cx: Scope, snapshot: RwSignal<Option<RegistersSnapshot>>) -> 
     let (code, set_code) = create_signal(cx, "".to_owned());
     let machine = create_rw_signal(cx, None::<RvCore>);
 
-    let (errors, set_errors) = create_signal(cx, Vec::<(usize, String)>::new());
+    let (errors, set_errors) = create_signal(cx, HashMap::<usize, String>::new());
 
     create_effect(cx, move |_| {
         snapshot.set(machine().map(|m| m.registers_snapshot()));
+    });
+
+    create_effect(cx, move |_| {
+        // TODO: attach error line and message to monaco, console.log is fair enough for now
+        log!("{:?}", errors());
     });
 
     view! {
@@ -24,7 +31,7 @@ pub fn ProgramView(cx: Scope, snapshot: RwSignal<Option<RegistersSnapshot>>) -> 
         >
             <Editor set_code=set_code/>
             <div
-                class="flex w-full px-4 py-8 justify-between border-t-gray-300 border-2"
+                class="flex w-full p-4 justify-between border-t-gray-300 border-2"
             >
                 <ResetButton machine=machine />
 
@@ -65,19 +72,20 @@ fn StartButton(
     cx: Scope, 
     code: ReadSignal<String>, 
     set_machine: WriteSignal<Option<RvCore>>, 
-    set_errors: WriteSignal<Vec<(usize, String)>>
+    set_errors: WriteSignal<HashMap<usize, String>>
 ) -> impl IntoView {
     view! {
         cx,
         <button
             class="rounded border inline-block w-fit content py-3 px-4 shadow-lg"
             on:click=move |_| {
-                let instructions = Interpreter::compile(code());
-                match instructions {
+                let compile_result = Interpreter::compile(code());
+                match compile_result {
                     Err(vec) => set_errors(vec),
-                    Ok(instructions) => {
-                        log!("{:?}", &instructions);
-                        set_machine(Some(RvCore::with_instructions(instructions)));
+                    Ok(result) => {
+                        log!("Address Map: {:?}", result.instructions_addresses);
+                        log!("Instructions: {:?}", result.instructions);
+                        set_machine(Some(RvCore::with_instructions(result.instructions)));
                     }
                 }
             }>

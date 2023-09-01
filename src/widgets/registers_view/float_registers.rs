@@ -9,7 +9,7 @@ pub fn FloatRegisters(cx: Scope, f_regs: [f64; 32]) -> impl IntoView {
     <div
         class="w-fit text-center"
     >
-        Float Registers
+        <h1 class="font-bold m-6">Float Registers</h1>
         {move ||
             view! {cx,
                     <div class="grid grid-cols-8 justify-items-center">

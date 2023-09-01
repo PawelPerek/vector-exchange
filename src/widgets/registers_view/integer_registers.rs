@@ -52,7 +52,7 @@ pub fn IntegerRegisters(
         <div
             class="w-fit text-center"
         >
-            Integer Registers
+            <h1 class="font-bold m-6">Integer Registers</h1>
             {move ||
                 view! {cx, 
                         <div class="grid grid-cols-8 justify-items-center">
