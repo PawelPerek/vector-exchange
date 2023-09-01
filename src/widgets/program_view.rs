@@ -10,7 +10,7 @@ pub fn ProgramView(cx: Scope, snapshot: RwSignal<Option<RegistersSnapshot>>) -> 
     let (code, set_code) = create_signal(cx, "".to_owned());
     let machine = create_rw_signal(cx, None::<RvCore>);
 
-    let (errors, set_errors) = create_signal(cx, Vec::<String>::new());
+    let (errors, set_errors) = create_signal(cx, Vec::<(usize, String)>::new());
 
     create_effect(cx, move |_| {
         snapshot.set(machine().map(|m| m.registers_snapshot()));
@@ -65,7 +65,7 @@ fn StartButton(
     cx: Scope, 
     code: ReadSignal<String>, 
     set_machine: WriteSignal<Option<RvCore>>, 
-    set_errors: WriteSignal<Vec<String>>
+    set_errors: WriteSignal<Vec<(usize, String)>>
 ) -> impl IntoView {
     view! {
         cx,
@@ -74,7 +74,7 @@ fn StartButton(
             on:click=move |_| {
                 let instructions = Interpreter::compile(code());
                 match instructions {
-                    Err(vec) => set_errors(vec.into_iter().map(|(_line, message)| message).collect::<Vec<_>>()),
+                    Err(vec) => set_errors(vec),
                     Ok(instructions) => {
                         log!("{:?}", &instructions);
                         set_machine(Some(RvCore::with_instructions(instructions)));

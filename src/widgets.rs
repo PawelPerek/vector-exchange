@@ -19,7 +19,7 @@ pub fn App(cx: Scope) -> impl IntoView {
             style=r#"
             grid-template:
                 "top top" 4rem
-                "pro reg" 1fr / 1fr 1fr;
+                "pro reg" 1fr / 50vw 1fr;
             "#
          class="grid h-screen overflow-y-hidden">
             <TopBar />
