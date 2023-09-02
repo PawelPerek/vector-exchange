@@ -8,15 +8,13 @@ use leptos::{*, leptos_dom::log};
 use editor::Editor;
 
 #[component]
-pub fn ProgramView(cx: Scope, snapshot: RwSignal<Option<RegistersSnapshot>>) -> impl IntoView {
+pub fn ProgramView(
+    cx: Scope, 
+    machine: RwSignal<Option<RvCore>>
+) -> impl IntoView {
     let (code, set_code) = create_signal(cx, "".to_owned());
-    let machine = create_rw_signal(cx, None::<RvCore>);
 
     let (errors, set_errors) = create_signal(cx, HashMap::<usize, String>::new());
-
-    create_effect(cx, move |_| {
-        snapshot.set(machine().map(|m| m.registers_snapshot()));
-    });
 
     create_effect(cx, move |_| {
         // TODO: attach error line and message to monaco, console.log is fair enough for now
@@ -41,7 +39,7 @@ pub fn ProgramView(cx: Scope, snapshot: RwSignal<Option<RegistersSnapshot>>) -> 
                         set_machine=machine.write_only() 
                         set_errors=set_errors
                         />},
-                    Some(_) => view! {cx, <StepButton set_machine=machine.write_only() set_snapshot=snapshot.write_only() />}
+                    Some(_) => view! {cx, <StepButton set_machine=machine.write_only() />}
                 }}
 
                 
@@ -95,7 +93,7 @@ fn StartButton(
 }
 
 #[component]
-fn StepButton(cx: Scope, set_machine: WriteSignal<Option<RvCore>>, set_snapshot: WriteSignal<Option<RegistersSnapshot>>) -> impl IntoView {
+fn StepButton(cx: Scope, set_machine: WriteSignal<Option<RvCore>>) -> impl IntoView {
     view! {
         cx,
         <button
@@ -109,10 +107,7 @@ fn StepButton(cx: Scope, set_machine: WriteSignal<Option<RvCore>>, set_snapshot:
 
                     if regs.is_none() {
                         set_machine(None);
-                        set_snapshot(None);
                     }
-
-                    set_snapshot(regs);
                 })
             }>
             Step

@@ -11,7 +11,8 @@ use registers_view::RegistersView;
 
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
-    let snapshot_signal = create_rw_signal(cx, None::<RegistersSnapshot>);
+    let core = create_rw_signal(cx, None::<RvCore>);
+    let snapshot = move || core.get().map(|machine| machine.registers_snapshot()).unwrap_or_default();
 
     view! {
         cx,
@@ -23,8 +24,16 @@ pub fn App(cx: Scope) -> impl IntoView {
             "#
          class="grid h-screen overflow-y-hidden">
             <TopBar />
-            <ProgramView snapshot=snapshot_signal/>
-            <RegistersView registers_snapshot=snapshot_signal.read_only()/>
+            <ProgramView machine=core />
+            <RegistersView snapshot=snapshot />
         </div>
     }
+}
+
+#[component]
+fn Irrelevant(cx: Scope, value: ReadSignal<u32>, set_single: WriteSignal<u32>) -> impl IntoView {
+    view! {cx, <div on:click=move |_| {
+        set_single(value() * 2);
+        log!("{}", value());
+    }>{value}</div>}
 }
