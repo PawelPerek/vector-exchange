@@ -44,8 +44,11 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
 
-    - name: WASM and typescript bridge build
-      run: npm run build:public
+    - name: Compile typescript bridge
+      run: npm run build:ts:release
+
+    - name: Compile WASM codebase
+      run: build:rs:public
 
     - name: Setup Pages
       uses: actions/configure-pages@v3

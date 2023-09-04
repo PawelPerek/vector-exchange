@@ -9,8 +9,7 @@
     "build:rs:watch": "trunk serve",
 
     "build": "npm run build:ts && npm run build:rs",
-    "build:release": "npm run build:ts:release && npm run build:rs:release",
-    "build:public": "npm run build:ts:release && npm run build:rs:public"
+    "build:release": "npm run build:ts:release && npm run build:rs:release"
   },
   "dependencies": {
     "@tailwindcss/forms": "^0.5.6",
