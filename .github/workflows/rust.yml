@@ -44,10 +44,10 @@ jobs:
     - name: Run tests
       run: cargo test --verbose
 
-    - name: Compile typescript bridge
+    - name: Compile TypeScript bridge
       run: npm run build:ts:release
 
-    - name: Compile WASM codebase
+    - name: Compile Rust codebase
       run: build:rs:public
 
     - name: Setup Pages
