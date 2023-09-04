@@ -51,9 +51,9 @@ pub fn IntegerRegisters(
     view! {
         cx,
         <div
-            class="w-fit text-center"
+            class="text-center bg-white rounded p-4 shadow-xl"
         >
-            <h1 class="font-bold m-6">Integer registers</h1>
+            <h1 class="font-bold text-center border border-gray-200 p-6">Integer registers</h1>
             {move ||
                 view! {cx, 
                         <div class="grid grid-cols-8 justify-items-center">

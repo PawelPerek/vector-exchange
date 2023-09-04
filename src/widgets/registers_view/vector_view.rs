@@ -23,10 +23,15 @@ pub fn VectorView(
         <>
             <VectorConfig 
                 selected_vlen=selected_vlen
-                engine_sew=FrontEndSEW::Int(vu_snapshot.sew)
+                engine_sew=FrontEndSEW::Exact((vu_snapshot.sew, SEWType::Int))
                 engine_lmul=FrontEndLMUL::Exact(vu_snapshot.lmul)    
             />
-            <VectorRegisters vlen=selected_vlen.read_only() v_regs=reg_snapshot.v />
+            <VectorRegisters 
+                vlen=selected_vlen.read_only() 
+                v_regs=reg_snapshot.v 
+                engine_sew=vu_snapshot.sew
+                engine_lmul=vu_snapshot.lmul
+            />
         </>
     }
 }
@@ -53,30 +58,46 @@ impl Deref for FrontEndVLEN {
     }
 }
 
+#[derive(Clone, Copy, PartialEq)]
 pub enum FrontEndSEW {
     Default,
-    Int(SEW),
-    Fp(SEW)
+    Exact((SEW, SEWType))
+}
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum SEWType {
+    Int,
+    Fp
+}
+
+impl FrontEndSEW {
+    fn map_default(&self, default: SEW) -> (SEW, SEWType) {
+        match self {
+            Self::Default => (default, SEWType::Int),
+            Self::Exact(sew_pair) => *sew_pair,
+        }
+    }
 }
 
 impl ToString for FrontEndSEW {
     fn to_string(&self) -> String {
         match self {
             Self::Default => "Same as vector engine",
-            Self::Int(SEW::E8) => "8b",
-            Self::Int(SEW::E16) => "16b",
-            Self::Int(SEW::E32) => "32b",
-            Self::Int(SEW::E64) => "64b",
-            Self::Int(SEW::E128) => "128b",
-            Self::Fp(SEW::E8) => "8b (fp)",
-            Self::Fp(SEW::E16) => "16b (fp)",
-            Self::Fp(SEW::E32) => "32b (fp)",
-            Self::Fp(SEW::E64) => "64b (fp)",
-            Self::Fp(SEW::E128) => "128b (fp)",
+            Self::Exact((SEW::E8, SEWType::Int)) => "8b",
+            Self::Exact((SEW::E16, SEWType::Int)) => "16b",
+            Self::Exact((SEW::E32, SEWType::Int)) => "32b",
+            Self::Exact((SEW::E64, SEWType::Int)) => "64b",
+            Self::Exact((SEW::E128, SEWType::Int)) => "128b",
+            Self::Exact((SEW::E8, SEWType::Fp)) => "8b (fp)",
+            Self::Exact((SEW::E16, SEWType::Fp)) => "16b (fp)",
+            Self::Exact((SEW::E32, SEWType::Fp)) => "32b (fp)",
+            Self::Exact((SEW::E64, SEWType::Fp)) => "64b (fp)",
+            Self::Exact((SEW::E128, SEWType::Fp)) => "128b (fp)",
         }.to_owned()
     }
 }
 
+#[derive(Clone, Copy)]
 pub enum FrontEndLMUL {
     Default,
     Exact(LMUL)

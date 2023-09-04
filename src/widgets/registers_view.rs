@@ -47,7 +47,7 @@ pub fn RegistersView<Reg, Vu, Mem>(
         Mem: Fn() -> Vec<u8> + 'static
 {
     use RegisterRoute as Route;
-    let active_route = create_rw_signal(cx, Route::VectorRegisters);
+    let active_route = create_rw_signal(cx, Route::ScalarRegisters);
 
     view! {
         cx,

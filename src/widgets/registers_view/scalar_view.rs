@@ -20,7 +20,9 @@ pub fn ScalarView(
 
     view! {cx,
         <>
-            <ScalarRegister value=pc.to_string() name="pc".to_owned()/>
+            <div class="bg-white rounded p-4 shadow-xl">
+                <ScalarRegister value=pc.to_string() name="pc".to_owned()/>
+            </div>
             <IntegerRegisters x_regs=x />
             <FloatRegisters f_regs=f />
         </>

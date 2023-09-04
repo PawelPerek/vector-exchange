@@ -12,9 +12,11 @@ let monaco: editor.IStandaloneCodeEditor;
 let currentCode = initialCode;
 
 export function create(parent: HTMLElement) {
-  monaco = editor.create(parent, {});
-
-  monaco.setValue(initialCode)
+  monaco = editor.create(parent, {
+    value: initialCode,
+    fontSize: 18,
+    theme: "vs-dark"
+  });
 
   let observer = new ResizeObserver((entries) => {
     for (const entry of entries) {

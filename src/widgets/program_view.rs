@@ -29,7 +29,7 @@ pub fn ProgramView(
         >
             <Editor set_code=set_code/>
             <div
-                class="flex w-full p-4 justify-between border-t-gray-300 border-2"
+                class="flex w-full p-4 justify-between bg-zinc-800"
             >
                 <ResetButton machine=machine />
 
@@ -56,9 +56,10 @@ fn ResetButton(cx: Scope, machine: RwSignal<Option<RvCore>>) -> impl IntoView {
         cx,
         <button
             prop:disabled=move || !is_started()
-            class="rounded border inline-block w-fit content p-3 px-4 shadow-lg"
-            class=("bg-gray-400", move || !is_started())
-            class=("bg-red-400", move || is_started())
+            class="rounded inline-block w-fit content p-3 px-4"
+            class=("bg-zinc-400", move || !is_started())
+            class=("text-zinc-600", move || !is_started())
+            class=("bg-red-500", move || is_started())
             on:click=move |_| {
                 machine.set(None);
             }>Reset</button>
@@ -75,7 +76,7 @@ fn StartButton(
     view! {
         cx,
         <button
-            class="rounded border inline-block w-fit content py-3 px-4 shadow-lg"
+            class="rounded inline-block w-fit content py-3 px-4 bg-gray-300"
             on:click=move |_| {
                 let compile_result = Interpreter::compile(code());
                 match compile_result {
@@ -89,7 +90,7 @@ fn StartButton(
                     }
                 }
             }>
-            Start
+            Compile
         </button>
     }
 }
@@ -99,7 +100,7 @@ fn StepButton(cx: Scope, set_machine: WriteSignal<Option<RvCore>>) -> impl IntoV
     view! {
         cx,
         <button
-            class="rounded border inline-block w-fit content p-3 px-4 shadow-lg bg-green-400"
+            class="rounded inline-block w-fit content p-3 px-4 shadow-lg bg-green-500"
             on:click=move |_| {
                 set_machine.update(|machine| {
                     let result = machine.as_mut().unwrap().step();
