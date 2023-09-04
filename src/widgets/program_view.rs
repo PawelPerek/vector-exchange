@@ -81,8 +81,6 @@ fn StartButton(
                 match compile_result {
                     Err(vec) => set_errors(vec),
                     Ok(result) => {
-                        log!("{:?}", result.instructions);
-
                         let machine = RvCoreBuilder::default()
                             .instructions(result.instructions)
                             .build();
@@ -109,8 +107,6 @@ fn StepButton(cx: Scope, set_machine: WriteSignal<Option<RvCore>>) -> impl IntoV
                     if result.is_none() {
                         set_machine(None);
                     }
-
-                    log!("{:?}", machine.clone().map(|core| core.registers.snapshot()));
                 })
             }>
             Step

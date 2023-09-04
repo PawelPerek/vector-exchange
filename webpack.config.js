@@ -8,8 +8,7 @@ const isProduction = process.env.NODE_ENV == 'production';
 const config = {
     entry: './src/bridge/index.ts',
     output: {
-        path: path.resolve(__dirname, 'dist', 'bridge'),
-        filename
+        path: path.resolve(__dirname, 'dist', 'bridge')
     },
     plugins: [
         new MonacoWebpackPlugin()
