@@ -46,13 +46,14 @@ fn xreg_name(index: usize) -> String {
 pub fn IntegerRegisters(
     cx: Scope,
     x_regs: [u64; 32],
-) -> impl IntoView {
+) -> impl IntoView
+{
     view! {
         cx,
         <div
             class="w-fit text-center"
         >
-            <h1 class="font-bold m-6">Integer Registers</h1>
+            <h1 class="font-bold m-6">Integer registers</h1>
             {move ||
                 view! {cx, 
                         <div class="grid grid-cols-8 justify-items-center">

@@ -1,15 +1,17 @@
-mod float_registers;
-mod integer_registers;
 mod registers_header;
-mod scalar_register;
+mod scalar_view;
+mod vector_view;
+mod csr_view;
+mod memory_view;
 
 use eeric::prelude::*;
 use leptos::*;
 
-use scalar_register::ScalarRegister;
-use float_registers::FloatRegisters;
-use integer_registers::IntegerRegisters;
 use registers_header::RegistersHeader;
+use scalar_view::ScalarView;
+use vector_view::VectorView;
+use csr_view::CsrView;
+use memory_view::MemoryView;
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum RegisterRoute {
@@ -33,16 +35,19 @@ impl ToString for RegisterRoute {
 
 
 #[component]
-pub fn RegistersView<Snapshot>(
+pub fn RegistersView<Reg, Vu, Mem>(
     cx: Scope,
-    snapshot: Snapshot
-) -> impl IntoView
-    where 
-        Snapshot: Fn() -> RegistersSnapshot + 'static
+    reg_snapshot: Reg,
+    vu_snapshot: Vu,
+    mem_snapshot: Mem,
+) -> impl IntoView 
+    where
+        Reg: Fn() -> RegistersSnapshot + 'static,
+        Vu: Fn() -> VectorEngine + 'static,
+        Mem: Fn() -> Vec<u8> + 'static
 {
     use RegisterRoute as Route;
-
-    let active_route = create_rw_signal(cx, Route::ScalarRegisters);
+    let active_route = create_rw_signal(cx, Route::VectorRegisters);
 
     view! {
         cx,
@@ -51,20 +56,19 @@ pub fn RegistersView<Snapshot>(
             class="flex flex-col items-center bg-gray-200"
         >
             <RegistersHeader active_route={active_route}/>
-            <div class="grow flex flex-col justify-evenly items-center">
+            <div class="grow w-full flex flex-col justify-evenly items-center">
                 {move || match active_route() {
-                        Route::ScalarRegisters => {
-                            view! {cx,
-                                    <>
-                                        <ScalarRegister value=snapshot().pc.to_string() name="pc".to_owned()/>
-                                        <IntegerRegisters x_regs=snapshot().x/>
-                                        <FloatRegisters f_regs=snapshot().f/>
-                                    </>
-                                }
-                            },
-                        Route::VectorRegisters => view! {cx, <>Vector todo</>},
-                        Route::CsrRegisters => view! {cx, <>Csr todo</>},
-                        Route::Memory => view! {cx, <>Memory todo</>},
+                        Route::ScalarRegisters => view! {cx, <ScalarView snapshot=reg_snapshot().clone() /> },
+                        Route::VectorRegisters => view! {cx, <VectorView 
+                            vu_snapshot=vu_snapshot().clone()
+                            reg_snapshot=reg_snapshot().clone()
+                        /> },
+                        Route::CsrRegisters => view! {cx, <CsrView 
+                            snapshot=reg_snapshot().clone()
+                        /> },
+                        Route::Memory => view! {cx, <MemoryView 
+                            snapshot=mem_snapshot().clone()
+                        />},
                     }
                 }
             </div>

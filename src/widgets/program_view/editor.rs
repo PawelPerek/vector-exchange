@@ -1,13 +1,15 @@
-use std::{rc::Rc, cell::RefCell};
+use std::{rc::Rc, cell::RefCell, time::Duration};
 
 use leptos::*;
-use monaco::api::*;
 use wasm_bindgen::{prelude::*, JsValue};
 
-#[wasm_bindgen(module="/src/js/monaco.js")]
+#[wasm_bindgen]
 extern "C" {
-    #[wasm_bindgen(js_name = "fitToParent")]
-    fn fit_to_parent(parent: &JsValue, monaco: &JsValue);
+    #[wasm_bindgen(js_namespace = monacoBridge, js_name = "create")]
+    fn create_monaco(parent: &JsValue);
+
+    #[wasm_bindgen(js_namespace = monacoBridge, js_name = "onInput")]
+    fn on_input(listener: &Closure<dyn Fn(String)>);
 }
 
 #[component]
@@ -16,32 +18,15 @@ pub fn Editor(cx: Scope, set_code: WriteSignal<String>) -> impl IntoView {
         <div class="h-full w-full"></div>  
     };
 
-    let initial_value = "addi x1, x0, 1\nloop:\n\tadd x1, x1, x1\n\tbeq x0, x0, loop\n";
+    create_monaco(&editor_parent);
 
-    let editor = CodeEditor::create(
-        &editor_parent, 
-        Some(CodeEditorOptions::default()
-            .with_builtin_theme(monaco::sys::editor::BuiltinTheme::Vs)
-            .with_value(initial_value.to_owned())
-        )
-    );
-
-    fit_to_parent(&editor_parent, editor.as_ref());
-
-    set_code(initial_value.to_owned());
-
-    let model = Rc::new(RefCell::new(editor.get_model().unwrap()));
-
-    let cloned_model = model.clone();
-
-    let dispose = model.borrow().on_did_change_content(move |_| {
-        let code = cloned_model.borrow().get_value();
-
+    let event_listener = Closure::wrap(Box::new(move |code: String| {
         set_code(code);
-    });
+    }) as Box<dyn Fn(String)>);
 
-    std::mem::forget(editor);
-    std::mem::forget(dispose);
+    on_input(&event_listener);
+
+    std::mem::forget(event_listener);
 
     editor_parent
 }

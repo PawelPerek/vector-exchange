@@ -3,13 +3,17 @@ use leptos::*;
 use super::scalar_register::ScalarRegister;
 
 #[component]
-pub fn FloatRegisters(cx: Scope, f_regs: [f64; 32]) -> impl IntoView {
+pub fn FloatRegisters(
+    cx: Scope, 
+    f_regs: [f64; 32]
+) -> impl IntoView
+{
     view! {
     cx,
     <div
         class="w-fit text-center"
     >
-        <h1 class="font-bold m-6">Float Registers</h1>
+        <h1 class="font-bold m-6">Float registers</h1>
         {move ||
             view! {cx,
                     <div class="grid grid-cols-8 justify-items-center">

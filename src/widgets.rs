@@ -12,7 +12,10 @@ use registers_view::RegistersView;
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
     let core = create_rw_signal(cx, None::<RvCore>);
-    let snapshot = move || core.get().map(|machine| machine.registers_snapshot()).unwrap_or_default();
+
+    let reg_snapshot = move || core().map(|core| core.registers.snapshot()).unwrap_or_default();
+    let vu_snapshot = move || core().map(|core| core.vec_engine.snapshot()).unwrap_or_default();
+    let mem_snapshot = move || core().map(|core| core.memory.snapshot()).unwrap_or_default();
 
     view! {
         cx,
@@ -25,15 +28,11 @@ pub fn App(cx: Scope) -> impl IntoView {
          class="grid h-screen overflow-y-hidden">
             <TopBar />
             <ProgramView machine=core />
-            <RegistersView snapshot=snapshot />
+            <RegistersView 
+                reg_snapshot=reg_snapshot
+                vu_snapshot=vu_snapshot
+                mem_snapshot=mem_snapshot
+            />
         </div>
     }
-}
-
-#[component]
-fn Irrelevant(cx: Scope, value: ReadSignal<u32>, set_single: WriteSignal<u32>) -> impl IntoView {
-    view! {cx, <div on:click=move |_| {
-        set_single(value() * 2);
-        log!("{}", value());
-    }>{value}</div>}
 }

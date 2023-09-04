@@ -81,9 +81,14 @@ fn StartButton(
                 match compile_result {
                     Err(vec) => set_errors(vec),
                     Ok(result) => {
-                        log!("Address Map: {:?}", result.instructions_addresses);
-                        log!("Instructions: {:?}", result.instructions);
-                        set_machine(Some(RvCore::with_instructions(result.instructions)));
+                        log!("{:?}", result.instructions);
+
+                        let machine = RvCoreBuilder::default()
+                            .instructions(result.instructions)
+                            .build()
+                            .unwrap();
+
+                        set_machine(Some(machine));
                     }
                 }
             }>
@@ -100,14 +105,13 @@ fn StepButton(cx: Scope, set_machine: WriteSignal<Option<RvCore>>) -> impl IntoV
             class="rounded border inline-block w-fit content p-3 px-4 shadow-lg bg-green-400"
             on:click=move |_| {
                 set_machine.update(|machine| {
-                    let regs = machine.as_mut().unwrap().step();
+                    let result = machine.as_mut().unwrap().step();
                     
-                    log!("{:?}", regs.as_ref().map(|r| r.x));
-                    log!("{:?}", regs.as_ref().map(|r| r.pc));
-
-                    if regs.is_none() {
+                    if result.is_none() {
                         set_machine(None);
                     }
+
+                    log!("{:?}", machine.clone().map(|core| core.registers.snapshot()));
                 })
             }>
             Step
