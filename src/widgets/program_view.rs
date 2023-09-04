@@ -85,8 +85,7 @@ fn StartButton(
 
                         let machine = RvCoreBuilder::default()
                             .instructions(result.instructions)
-                            .build()
-                            .unwrap();
+                            .build();
 
                         set_machine(Some(machine));
                     }
