@@ -48,7 +48,7 @@ jobs:
       run: npm run build:ts:release
 
     - name: Compile Rust codebase
-      run: build:rs:public
+      run: npm run build:rs:public
 
     - name: Setup Pages
       uses: actions/configure-pages@v3
