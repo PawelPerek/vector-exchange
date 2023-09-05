@@ -4,7 +4,6 @@ mod vector_view;
 mod csr_view;
 mod memory_view;
 
-use eeric::prelude::*;
 use leptos::*;
 
 use registers_header::RegistersHeader;

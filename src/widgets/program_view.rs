@@ -80,10 +80,15 @@ fn StartButton(
     set_errors: WriteSignal<HashMap<usize, String>>
 ) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let vlen = expect_context::<RwSignal<VLEN>>(cx);
     let build_machine = create_write_slice(
         cx, 
         core, 
-        |machine, instructions| *machine = Some(RvCoreBuilder::default()
+        move |machine, instructions| *machine = Some(RvCoreBuilder::default()
+            .vec_engine(
+                VectorEngineBuilder::default()
+                .vlen(vlen())
+                .build())
             .instructions(instructions)
             .build()
         )

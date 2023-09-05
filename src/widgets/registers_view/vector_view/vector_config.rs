@@ -45,12 +45,25 @@ pub fn VectorConfig(
 #[component]
 pub fn VlenSelector(cx: Scope, vlen: FrontEndVLEN) -> impl IntoView {
     let selected_vlen = expect_context::<RwSignal<VLEN>>(cx);
+    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let is_started = create_read_slice(
+        cx, 
+        core, 
+        |state| state.is_some()
+    );
+
+    create_effect(cx, move |_| {
+        log!("{}", is_started());
+    });
+
     view! {
         cx,
             <div
-                class="px-4 py-2 hover:bg-gray-100 select-none"
+                class="px-4 py-2 select-none"
                 class=("font-bold", move || FrontEndVLEN(selected_vlen()) == vlen)
                 class=("bg-gray-100", move || FrontEndVLEN(selected_vlen()) == vlen)
+                class=("hover:bg-gray-100", move || !is_started())
+                prop:disabled=move || is_started()
                 on:click=move |_| {
                     selected_vlen.set(*vlen);
                 }

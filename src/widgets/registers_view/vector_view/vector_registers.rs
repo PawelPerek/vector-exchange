@@ -1,7 +1,7 @@
 use eeric::prelude::*;
 use leptos::*;
 
-use super::{FrontEndVLEN, FrontEndSEW, FrontEndLMUL, SEWType};
+use super::{FrontEndSEW, FrontEndLMUL, SEWType};
 
 
 #[component]
@@ -17,6 +17,10 @@ pub fn VectorRegisters(
 
     let (sew, set_sew) = create_signal(cx, FrontEndSEW::Default);
     let (lmul, set_lmul) = create_signal(cx, FrontEndLMUL::Default);
+
+    create_effect(cx, move |_| {
+        log!("{:?}", vec_engine().sew.byte_length());
+    });
 
     view! {
         cx,
@@ -38,7 +42,7 @@ pub fn VectorRegisters(
                     }
                 }).collect::<Vec<_>>()
             } else {
-                v_regs().chunks(vec_engine().sew.byte_length()).enumerate().map(|(index, vreg)| {
+                v_regs().chunks(vec_engine().vlen.byte_length()).enumerate().map(|(index, vreg)| {
                     view! {
                         cx, 
                         <>
