@@ -34,7 +34,8 @@ pub fn VectorRegisters(
                         <>
                             <SingleRegister
                                 index=index
-                                vreg=vec![0; selected_vlen().byte_length()] 
+                                vreg=vec![0; selected_vlen().byte_length()]
+                                vlen=selected_vlen()
                                 sew=sew().map_default(vec_engine().sew)
                                 lmul=lmul().map_default(vec_engine().lmul)
                             />
@@ -47,8 +48,9 @@ pub fn VectorRegisters(
                         cx, 
                         <>
                             <SingleRegister
-                                index={index}
-                                vreg={vreg.iter().cloned().collect::<Vec<_>>()} 
+                                index=index
+                                vreg={vreg.iter().cloned().collect::<Vec<_>>()}
+                                vlen=vec_engine().vlen
                                 sew=sew().map_default(vec_engine().sew)
                                 lmul=lmul().map_default(vec_engine().lmul)
                             />
@@ -68,13 +70,21 @@ fn SingleRegister(
     cx: Scope,
     index: usize,
     vreg: Vec<u8>, 
+    vlen: VLEN,
     sew: (SEW, SEWType),
     lmul: LMUL
 ) -> impl IntoView {
+    let has_large_content = vlen == VLEN::V256 && sew.0 == SEW::E8;
+
     view! {
         cx,
         <div class="flex h-8 divide-y">
-            <div class="w-12 grid justify-center items-center bg-gray-200">{vreg_name(index)}</div>
+            <div 
+                class="grid justify-center items-center bg-gray-200"
+                class=("w-12", move || !has_large_content)
+                class=("text-xs", move || has_large_content)
+                class=("w-8", move || has_large_content)
+            >{vreg_name(index)}</div>
             <div class="flex divide-x">
                 {move || vreg_view(
                     &vreg, 
@@ -83,7 +93,10 @@ fn SingleRegister(
                 ).into_iter().map(|vreg_value| {
                     view! {
                         cx,
-                        <div class="grid justify-center items-center bg-white px-1">{vreg_value}</div>
+                        <div 
+                            class="grid justify-center items-center bg-white px-1"
+                            class=("text-xs", move || vlen == VLEN::V256 && sew.0 == SEW::E8)
+                            >{vreg_value}</div>
                     }
                 }).collect::<Vec<_>>()}
             </div>
