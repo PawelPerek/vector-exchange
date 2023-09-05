@@ -1,3 +1,4 @@
+use eeric::prelude::*;
 use leptos::*;
 
 use super::scalar_register::ScalarRegister;
@@ -44,25 +45,27 @@ fn xreg_name(index: usize) -> String {
 
 #[component]
 pub fn IntegerRegisters(
-    cx: Scope,
-    x_regs: [u64; 32],
+    cx: Scope
 ) -> impl IntoView
 {
+    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let x_regs = create_read_slice(
+        cx, 
+        core, 
+        |state| state.as_ref().map(|machine| machine.registers.snapshot().x).unwrap_or_default()
+    );
+
     view! {
         cx,
         <div
             class="text-center bg-white rounded p-4 shadow-xl"
         >
             <h1 class="font-bold text-center border border-gray-200 p-6">Integer registers</h1>
-            {move ||
-                view! {cx, 
-                        <div class="grid grid-cols-8 justify-items-center">
-                            {x_regs.into_iter().enumerate().map(|(index, value)| {
-                                view!{cx, <ScalarRegister name=xreg_name(index) value=value.to_string() />}
-                            }).collect::<Vec<_>>()}
-                        </div>
-                }
-            }
+            <div class="grid grid-cols-8 justify-items-center">
+                {move || x_regs().into_iter().enumerate().map(|(index, value)| {
+                    view!{cx, <ScalarRegister name=xreg_name(index) value=value.to_string() />}
+                }).collect::<Vec<_>>()}
             </div>
-        }
-    }       
+        </div>
+    }
+}       

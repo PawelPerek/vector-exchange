@@ -1,28 +1,31 @@
+use eeric::prelude::*;
 use leptos::*;
 
 use super::scalar_register::ScalarRegister;
 
 #[component]
 pub fn FloatRegisters(
-    cx: Scope, 
-    f_regs: [f64; 32]
+    cx: Scope
 ) -> impl IntoView
 {
+    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let f_regs = create_read_slice(
+        cx, 
+        core, 
+        |state| state.as_ref().map(|machine| machine.registers.snapshot().f).unwrap_or_default()
+    );
+ 
     view! {
-    cx,
-    <div
-        class="text-center bg-white rounded p-4 shadow-xl"
-    >
-        <h1 class="font-bold text-center border border-gray-200 p-6">Float registers</h1>
-        {move ||
-            view! {cx,
-                    <div class="grid grid-cols-8 justify-items-center">
-                        {f_regs.into_iter().enumerate().map(|(index, value)| {
-                            view!{cx, <ScalarRegister name=freg_name(index) value=value.to_string() />}
-                        }).collect::<Vec<_>>()}
-                    </div>
-            }
-        }
+        cx,
+        <div
+            class="text-center bg-white rounded p-4 shadow-xl"
+        >
+            <h1 class="font-bold text-center border border-gray-200 p-6">Integer registers</h1>
+            <div class="grid grid-cols-8 justify-items-center">
+                {move || f_regs().into_iter().enumerate().map(|(index, value)| {
+                    view!{cx, <ScalarRegister name=freg_name(index) value=value.to_string() />}
+                }).collect::<Vec<_>>()}
+            </div>
         </div>
     }
 }

@@ -11,11 +11,14 @@ use registers_view::RegistersView;
 
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
-    let core = create_rw_signal(cx, None::<RvCore>);
+    provide_context(cx, create_rw_signal(cx, None::<RvCore>));
+    provide_context(cx, create_rw_signal(cx, VLEN::V128));
 
-    let reg_snapshot = move || core().map(|core| core.registers.snapshot()).unwrap_or_default();
-    let vu_snapshot = move || core().map(|core| core.vec_engine.snapshot()).unwrap_or_default();
-    let mem_snapshot = move || core().map(|core| core.memory.snapshot()).unwrap_or_default();
+    // let core = create_rw_signal(cx, None::<RvCore>);
+
+    // let reg_snapshot = move || core().map(|core| core.registers.snapshot()).unwrap_or_default();
+    // let vu_snapshot = move || core().map(|core| core.vec_engine.snapshot()).unwrap_or_default();
+    // let mem_snapshot = move || core().map(|core| core.memory.snapshot()).unwrap_or_default();
 
     view! {
         cx,
@@ -27,12 +30,8 @@ pub fn App(cx: Scope) -> impl IntoView {
             "#
          class="grid h-screen overflow-y-hidden">
             <TopBar />
-            <ProgramView machine=core />
-            <RegistersView 
-                reg_snapshot=reg_snapshot
-                vu_snapshot=vu_snapshot
-                mem_snapshot=mem_snapshot
-            />
+            <ProgramView />
+            <RegistersView />
         </div>
     }
 }

@@ -1,30 +1,31 @@
 mod scalar_register;
+mod pc_register;
 mod integer_registers;
 mod float_registers;
 
 use eeric::prelude::*;
 use leptos::*;
 
-use scalar_register::ScalarRegister;
+use pc_register::PcRegister;
 use integer_registers::IntegerRegisters;
 use float_registers::FloatRegisters;
 
 #[component]
 pub fn ScalarView(
-    cx: Scope,
-    snapshot: RegistersSnapshot
+    cx: Scope
 ) -> impl IntoView {
-    let pc = snapshot.pc;
-    let x = snapshot.x;
-    let f = snapshot.f;
-
+    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let regs = create_read_slice(
+        cx, 
+        core, 
+        |state| state.as_ref().map(|machine| machine.registers.snapshot()).unwrap_or_default()
+    );
+    
     view! {cx,
         <>
-            <div class="bg-white rounded p-4 shadow-xl">
-                <ScalarRegister value=pc.to_string() name="pc".to_owned()/>
-            </div>
-            <IntegerRegisters x_regs=x />
-            <FloatRegisters f_regs=f />
+            <PcRegister />
+            <IntegerRegisters />
+            <FloatRegisters />
         </>
     }
 }

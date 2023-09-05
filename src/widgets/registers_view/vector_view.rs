@@ -12,26 +12,12 @@ use vector_registers::VectorRegisters;
 
 #[component]
 pub fn VectorView(
-    cx: Scope, 
-    vu_snapshot: VectorEngine,
-    reg_snapshot: RegistersSnapshot,
+    cx: Scope
 ) -> impl IntoView {
-    let selected_vlen = create_rw_signal(cx, FrontEndVLEN(VLEN::V128));
-
-
     view! {cx,
         <>
-            <VectorConfig 
-                selected_vlen=selected_vlen
-                engine_sew=FrontEndSEW::Exact((vu_snapshot.sew, SEWType::Int))
-                engine_lmul=FrontEndLMUL::Exact(vu_snapshot.lmul)    
-            />
-            <VectorRegisters 
-                vlen=selected_vlen.read_only() 
-                v_regs=reg_snapshot.v 
-                engine_sew=vu_snapshot.sew
-                engine_lmul=vu_snapshot.lmul
-            />
+            <VectorConfig />
+            <VectorRegisters />
         </>
     }
 }
@@ -101,6 +87,15 @@ impl ToString for FrontEndSEW {
 pub enum FrontEndLMUL {
     Default,
     Exact(LMUL)
+}
+
+impl FrontEndLMUL {
+    fn map_default(&self, default: LMUL) -> LMUL {
+        match self {
+            Self::Default => default,
+            Self::Exact(lmul) => *lmul,
+        }
+    }
 }
 
 impl ToString for FrontEndLMUL {

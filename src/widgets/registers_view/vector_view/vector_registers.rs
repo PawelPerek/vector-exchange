@@ -7,12 +7,14 @@ use super::{FrontEndVLEN, FrontEndSEW, FrontEndLMUL, SEWType};
 #[component]
 pub fn VectorRegisters(
     cx: Scope,
-    vlen: ReadSignal<FrontEndVLEN>,
-    engine_sew: SEW,
-    engine_lmul: LMUL,
-    v_regs: Vec<u8>
 ) -> impl IntoView 
 {
+    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let v_regs = create_read_slice(cx, core, |state| state.as_ref().map(|machine| machine.registers.snapshot().v).unwrap_or_default());
+    let vec_engine = create_read_slice(cx, core, |state| state.as_ref().map(|machine| machine.vec_engine.snapshot()).unwrap_or_default());
+
+    let selected_vlen = expect_context::<RwSignal<VLEN>>(cx);
+
     let (sew, set_sew) = create_signal(cx, FrontEndSEW::Default);
     let (lmul, set_lmul) = create_signal(cx, FrontEndLMUL::Default);
 
@@ -21,34 +23,30 @@ pub fn VectorRegisters(
         <div class="bg-white rounded p-4 shadow-xl">
             <h1 class="font-bold text-center border border-gray-200 p-6">Vector registers</h1>
             <div class="grid grid-cols-2 border border-gray-200">
-            {move || if v_regs.is_empty() {
+            {move || if v_regs().is_empty() {
                 std::iter::repeat(0).take(32).enumerate().map(|(index, _)| {
                     view! {
                         cx, 
                         <>
                             <SingleRegister
                                 index=index
-                                vreg=vec![0; vlen().byte_length()] 
-                                sew=sew
-                                engine_sew=engine_sew
-                                lmul=lmul
-                                engine_lmul=engine_lmul
+                                vreg=vec![0; selected_vlen().byte_length()] 
+                                sew=sew().map_default(vec_engine().sew)
+                                lmul=lmul().map_default(vec_engine().lmul)
                             />
                         </>
                     }
                 }).collect::<Vec<_>>()
             } else {
-                v_regs.chunks(vlen().byte_length()).enumerate().map(|(index, vreg)| {
+                v_regs().chunks(vec_engine().sew.byte_length()).enumerate().map(|(index, vreg)| {
                     view! {
                         cx, 
                         <>
                             <SingleRegister
                                 index={index}
                                 vreg={vreg.iter().cloned().collect::<Vec<_>>()} 
-                                sew=sew
-                                engine_sew=engine_sew
-                                lmul=lmul
-                                engine_lmul=engine_lmul
+                                sew=sew().map_default(vec_engine().sew)
+                                lmul=lmul().map_default(vec_engine().lmul)
                             />
                         </>
                     }
@@ -59,15 +57,15 @@ pub fn VectorRegisters(
     }
 }
 
+
+
 #[component]
 fn SingleRegister(
     cx: Scope,
     index: usize,
     vreg: Vec<u8>, 
-    sew: ReadSignal<FrontEndSEW>,
-    engine_sew: SEW,
-    lmul: ReadSignal<FrontEndLMUL>,
-    engine_lmul: LMUL
+    sew: (SEW, SEWType),
+    lmul: LMUL
 ) -> impl IntoView {
     view! {
         cx,
@@ -76,10 +74,8 @@ fn SingleRegister(
             <div class="flex divide-x">
                 {move || vreg_view(
                     &vreg, 
-                    sew(), 
-                    engine_sew,
-                    lmul(), 
-                    engine_lmul
+                    sew, 
+                    lmul,
                 ).into_iter().map(|vreg_value| {
                     view! {
                         cx,
@@ -93,12 +89,10 @@ fn SingleRegister(
 
 fn vreg_view(
     bytes: &Vec<u8>, 
-    sew: FrontEndSEW, 
-    engine_sew: SEW,
-    lmul: FrontEndLMUL,
-    engine_lmul: LMUL
+    sew: (SEW, SEWType), 
+    lmul: LMUL,
 ) -> Vec<String> {
-    match sew.map_default(engine_sew) {
+    match sew {
         (SEW::E8, SEWType::Int) => bytes
             .iter()
             .cloned()

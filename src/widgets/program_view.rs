@@ -10,14 +10,18 @@ use editor::Editor;
 #[component]
 pub fn ProgramView(
     cx: Scope, 
-    machine: RwSignal<Option<RvCore>>
 ) -> impl IntoView {
-    let (code, set_code) = create_signal(cx, "".to_owned());
+    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let core_exists = create_read_slice(
+        cx, 
+        core, 
+        |machine| machine.is_some()
+    );
 
+    let (code, set_code) = create_signal(cx, "".to_owned());
     let (errors, set_errors) = create_signal(cx, HashMap::<usize, String>::new());
 
     create_effect(cx, move |_| {
-        // TODO: attach error line and message to monaco, console.log is fair enough for now
         log!("{:?}", errors());
     });
 
@@ -31,27 +35,32 @@ pub fn ProgramView(
             <div
                 class="flex w-full p-4 justify-between bg-zinc-800"
             >
-                <ResetButton machine=machine />
+                <ResetButton />
 
-                {move || match machine() {
-                    None => view! {cx, <StartButton 
-                        code=code 
-                        set_machine=machine.write_only() 
-                        set_errors=set_errors
-                        />},
-                    Some(_) => view! {cx, <StepButton set_machine=machine.write_only() />}
-                }}
-
-                
+                {move || if core_exists() {
+                    view! {cx, <StepButton />}
+                } else {
+                    view! {cx, <StartButton 
+                            code=code
+                            set_errors=set_errors
+                        />}
+                    }
+                }
             </div>
         </div>
     }
 }
 
 #[component]
-fn ResetButton(cx: Scope, machine: RwSignal<Option<RvCore>>) -> impl IntoView {
-    let is_started = move || machine().is_some();
-    
+fn ResetButton(cx: Scope) -> impl IntoView {
+    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let (is_started, reset) = create_slice(
+        cx, 
+        core, 
+        |state| state.is_some(),
+        |state, _: ()| *state = None
+    );
+
     view! {
         cx,
         <button
@@ -60,19 +69,26 @@ fn ResetButton(cx: Scope, machine: RwSignal<Option<RvCore>>) -> impl IntoView {
             class=("bg-zinc-400", move || !is_started())
             class=("text-zinc-600", move || !is_started())
             class=("bg-red-500", move || is_started())
-            on:click=move |_| {
-                machine.set(None);
-            }>Reset</button>
+            on:click=move |_| reset(())>Reset</button>
     }
 }
 
 #[component]
 fn StartButton(
     cx: Scope, 
-    code: ReadSignal<String>, 
-    set_machine: WriteSignal<Option<RvCore>>, 
+    code: ReadSignal<String>,
     set_errors: WriteSignal<HashMap<usize, String>>
 ) -> impl IntoView {
+    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let build_machine = create_write_slice(
+        cx, 
+        core, 
+        |machine, instructions| *machine = Some(RvCoreBuilder::default()
+            .instructions(instructions)
+            .build()
+        )
+    );
+
     view! {
         cx,
         <button
@@ -81,13 +97,7 @@ fn StartButton(
                 let compile_result = Interpreter::compile(code());
                 match compile_result {
                     Err(vec) => set_errors(vec),
-                    Ok(result) => {
-                        let machine = RvCoreBuilder::default()
-                            .instructions(result.instructions)
-                            .build();
-
-                        set_machine(Some(machine));
-                    }
+                    Ok(result) => build_machine(result.instructions)
                 }
             }>
             Compile
@@ -96,20 +106,28 @@ fn StartButton(
 }
 
 #[component]
-fn StepButton(cx: Scope, set_machine: WriteSignal<Option<RvCore>>) -> impl IntoView {
+fn StepButton(cx: Scope) -> impl IntoView {
+    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let machine_step = create_write_slice(
+        cx, 
+        core, 
+        |machine, _: ()| {
+            let result = machine
+                .as_mut()
+                .expect("Machine was Option::None although step button was rendered")
+                .step();
+
+            if result.is_none() {
+                *machine = None;
+            }
+        }
+    );
+    
     view! {
         cx,
         <button
             class="rounded inline-block w-fit content p-3 px-4 shadow-lg bg-green-500"
-            on:click=move |_| {
-                set_machine.update(|machine| {
-                    let result = machine.as_mut().unwrap().step();
-                    
-                    if result.is_none() {
-                        set_machine(None);
-                    }
-                })
-            }>
+            on:click=move |_| machine_step(())>
             Step
         </button>
     }

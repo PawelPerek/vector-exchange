@@ -7,11 +7,11 @@ use super::{FrontEndVLEN, FrontEndSEW, FrontEndLMUL};
 
 #[component]
 pub fn VectorConfig(
-    cx: Scope, 
-    selected_vlen: RwSignal<FrontEndVLEN>,
-    engine_sew: FrontEndSEW,
-    engine_lmul: FrontEndLMUL,
+    cx: Scope
 ) -> impl IntoView {
+    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let vec_engine = create_read_slice(cx, core, |state| state.as_ref().map(|machine| machine.vec_engine.snapshot()).unwrap_or_default());
+
     view! {
     cx,
         <div
@@ -25,33 +25,34 @@ pub fn VectorConfig(
             <div style="grid-area: vlen" class="flex justify-evenly items-center">
                 <span class="font-bold">Machine VLEN</span>
                 <div class="flex divide-x shadow rounded cursor-pointer">
-                    <VlenSelector vlen={FrontEndVLEN(VLEN::V64)} current_vlen={selected_vlen}/>
-                    <VlenSelector vlen={FrontEndVLEN(VLEN::V128)} current_vlen={selected_vlen}/>
-                    <VlenSelector vlen={FrontEndVLEN(VLEN::V256)} current_vlen={selected_vlen}/>
+                    <VlenSelector vlen={FrontEndVLEN(VLEN::V64)} />
+                    <VlenSelector vlen={FrontEndVLEN(VLEN::V128)} />
+                    <VlenSelector vlen={FrontEndVLEN(VLEN::V256)} />
                     // Impossible to style :/
                     // <VlenSelector vlen={FrontEndVLEN(VLEN::V512)} current_vlen={selected_vlen}/>
                 </div>
             </div>
             <div style="grid-area: sew" class="flex flex-col justify-center items-center font-bold">
-                Machine SEW = {move || engine_sew.to_string()}
+                Machine SEW = {move || FrontEndSEW::Exact((vec_engine().sew, SEWType::Int)).to_string()}
             </div>
             <div style="grid-area: lmul" class="flex justify-center items-center font-bold">
-                Machine LMUL = {move || engine_lmul.to_string()} 
+                Machine LMUL = {move || FrontEndLMUL::Exact(vec_engine().lmul).to_string()} 
             </div>
         </div>
     }
 }
 
 #[component]
-pub fn VlenSelector(cx: Scope, vlen: FrontEndVLEN, current_vlen: RwSignal<FrontEndVLEN>) -> impl IntoView {
+pub fn VlenSelector(cx: Scope, vlen: FrontEndVLEN) -> impl IntoView {
+    let selected_vlen = expect_context::<RwSignal<VLEN>>(cx);
     view! {
         cx,
             <div
                 class="px-4 py-2 hover:bg-gray-100 select-none"
-                class=("font-bold", move || current_vlen() == vlen)
-                class=("bg-gray-100", move || current_vlen() == vlen)
+                class=("font-bold", move || FrontEndVLEN(selected_vlen()) == vlen)
+                class=("bg-gray-100", move || FrontEndVLEN(selected_vlen()) == vlen)
                 on:click=move |_| {
-                    current_vlen.set(vlen);
+                    selected_vlen.set(*vlen);
                 }
             >
                 {vlen.to_string()}
