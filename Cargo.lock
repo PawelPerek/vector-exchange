@@ -433,9 +433,9 @@ dependencies = [
 
 [[package]]
 name = "eeric-interpreter"
-version = "0.0.32"
+version = "0.0.33"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b818ad945cdddfce00336d15ee650dfdd599975d57cea9d0281b0406a93e0315"
+checksum = "54e830a81a053a8cf0d3bccc44d1f8e1ed01e98e173fabf0ba8a5407225e7967"
 dependencies = [
  "eeric",
 ]
@@ -1980,7 +1980,7 @@ dependencies = [
 
 [[package]]
 name = "vector-exchange"
-version = "0.0.9"
+version = "0.0.10"
 dependencies = [
  "eeric",
  "eeric-interpreter",
