@@ -15,8 +15,8 @@ pub fn VectorRegisters(
 
     let selected_vlen = expect_context::<RwSignal<VLEN>>(cx);
 
-    let (sew, set_sew) = create_signal(cx, FrontEndSEW::Default);
-    let (lmul, set_lmul) = create_signal(cx, FrontEndLMUL::Default);
+    let (sew, _set_sew) = create_signal(cx, FrontEndSEW::Default);
+    let (lmul, _set_lmul) = create_signal(cx, FrontEndLMUL::Default);
 
     create_effect(cx, move |_| {
         log!("{:?}", vec_engine().sew.byte_length());
@@ -49,7 +49,7 @@ pub fn VectorRegisters(
                         <>
                             <SingleRegister
                                 index=index
-                                vreg={vreg.iter().cloned().collect::<Vec<_>>()}
+                                vreg={vreg.to_vec()}
                                 vlen=vec_engine().vlen
                                 sew=sew().map_default(vec_engine().sew)
                                 lmul=lmul().map_default(vec_engine().lmul)
@@ -105,9 +105,9 @@ fn SingleRegister(
 }
 
 fn vreg_view(
-    bytes: &Vec<u8>, 
+    bytes: &[u8], 
     sew: (SEW, SEWType), 
-    lmul: LMUL,
+    _lmul: LMUL,
 ) -> Vec<String> {
     match sew {
         (SEW::E8, SEWType::Int) => bytes

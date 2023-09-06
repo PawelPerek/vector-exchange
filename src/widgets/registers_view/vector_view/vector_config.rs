@@ -63,7 +63,7 @@ pub fn VlenSelector(cx: Scope, vlen: FrontEndVLEN) -> impl IntoView {
                 class=("font-bold", move || FrontEndVLEN(selected_vlen()) == vlen)
                 class=("bg-gray-100", move || FrontEndVLEN(selected_vlen()) == vlen)
                 class=("hover:bg-gray-100", move || !is_started())
-                prop:disabled=move || is_started()
+                prop:disabled=is_started
                 on:click=move |_| {
                     selected_vlen.set(*vlen);
                 }

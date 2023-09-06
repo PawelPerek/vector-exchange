@@ -68,7 +68,7 @@ fn ResetButton(cx: Scope) -> impl IntoView {
             class="rounded inline-block w-fit content p-3 px-4"
             class=("bg-zinc-400", move || !is_started())
             class=("text-zinc-600", move || !is_started())
-            class=("bg-red-500", move || is_started())
+            class=("bg-red-500", is_started)
             on:click=move |_| reset(())>Reset</button>
     }
 }
