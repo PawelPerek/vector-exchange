@@ -942,8 +942,6 @@ export const monarchDefinition: languages.IMonarchLanguage = ({
         "ma", "mu", "ta", "tu"
     ],
 
-    symbols: /[\.]+/,
-
     tokenizer: {
         root: [
             [/[ \t\r\n]+/, 'white'],
@@ -952,17 +950,15 @@ export const monarchDefinition: languages.IMonarchLanguage = ({
         
             [/\.[a-zA-Z_]\w*/, 'keyword'],
         
-            [/[a-zA-Z_$][\w$]*/, { cases: { '@keywords': 'keyword',
+            [/[a-zA-Z_$][\w$\.]*/, { cases: { '@keywords': 'keyword',
                                             '@registers': 'variable.name',
-                                            '@vectorOperands': 'constant',
+                                            '@vectorOperands': 'regexp',
                                             '@default': 'identifier'} }],
         
             [/0[xX][0-9a-fA-F]+/, 'number.hex'],
             [/0[bB][01]+/, 'number.binary'],
             [/0[oO][0-7]+/, 'number.octal'],
             [/\d+/, 'number'],
-        
-            [/@symbols/, 'delimiter'],
         
             [/^[a-zA-Z_]\w*:/, 'namespace'],
             [/^[^\s]+:/, 'namespace'],
