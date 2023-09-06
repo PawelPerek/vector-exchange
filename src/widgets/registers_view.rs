@@ -1,16 +1,16 @@
+mod csr_view;
+mod memory_view;
 mod registers_header;
 mod scalar_view;
 mod vector_view;
-mod csr_view;
-mod memory_view;
 
 use leptos::*;
 
+use csr_view::CsrView;
+use memory_view::MemoryView;
 use registers_header::RegistersHeader;
 use scalar_view::ScalarView;
 use vector_view::VectorView;
-use csr_view::CsrView;
-use memory_view::MemoryView;
 
 #[derive(PartialEq, Clone, Copy)]
 pub enum RegisterRoute {
@@ -32,11 +32,8 @@ impl ToString for RegisterRoute {
     }
 }
 
-
 #[component]
-pub fn RegistersView(
-    cx: Scope,
-) -> impl IntoView {
+pub fn RegistersView(cx: Scope) -> impl IntoView {
     use RegisterRoute as Route;
     let active_route = create_rw_signal(cx, Route::ScalarRegisters);
 

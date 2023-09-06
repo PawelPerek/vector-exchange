@@ -4,7 +4,7 @@ use super::RegisterRoute;
 
 #[component]
 pub fn RegistersHeader(cx: Scope, active_route: RwSignal<RegisterRoute>) -> impl IntoView {
-    view! { cx, 
+    view! { cx,
         <div
             style="grid-template-columns: 1fr 3fr 1fr"
             class="w-full h-20 grid items-center bg-gray-400 divide-x"
@@ -23,15 +23,11 @@ pub fn RegistersHeader(cx: Scope, active_route: RwSignal<RegisterRoute>) -> impl
 }
 
 #[component]
-fn Button(
-    cx: Scope,
-    route: RegisterRoute,
-    active_route: RwSignal<RegisterRoute>
-) -> impl IntoView {
+fn Button(cx: Scope, route: RegisterRoute, active_route: RwSignal<RegisterRoute>) -> impl IntoView {
     view! {
         cx,
-        <div 
-            class="w-20 py-2 text-center bg-white rounded hover:cursor-pointer" 
+        <div
+            class="w-20 py-2 text-center bg-white rounded hover:cursor-pointer"
             class=("font-bold", move || active_route() == route)
             on:click=move |_| {
                 active_route.set(route);

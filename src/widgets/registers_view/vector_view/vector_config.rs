@@ -3,14 +3,17 @@ use leptos::*;
 
 use crate::widgets::registers_view::vector_view::SEWType;
 
-use super::{FrontEndVLEN, FrontEndSEW, FrontEndLMUL};
+use super::{FrontEndLMUL, FrontEndSEW, FrontEndVLEN};
 
 #[component]
-pub fn VectorConfig(
-    cx: Scope
-) -> impl IntoView {
+pub fn VectorConfig(cx: Scope) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let vec_engine = create_read_slice(cx, core, |state| state.as_ref().map(|machine| machine.vec_engine.snapshot()).unwrap_or_default());
+    let vec_engine = create_read_slice(cx, core, |state| {
+        state
+            .as_ref()
+            .map(|machine| machine.vec_engine.snapshot())
+            .unwrap_or_default()
+    });
 
     view! {
     cx,
@@ -36,7 +39,7 @@ pub fn VectorConfig(
                 Machine SEW = {move || FrontEndSEW::Exact((vec_engine().sew, SEWType::Int)).to_string()}
             </div>
             <div style="grid-area: lmul" class="flex justify-center items-center font-bold">
-                Machine LMUL = {move || FrontEndLMUL::Exact(vec_engine().lmul).to_string()} 
+                Machine LMUL = {move || FrontEndLMUL::Exact(vec_engine().lmul).to_string()}
             </div>
         </div>
     }
@@ -46,30 +49,25 @@ pub fn VectorConfig(
 pub fn VlenSelector(cx: Scope, vlen: FrontEndVLEN) -> impl IntoView {
     let selected_vlen = expect_context::<RwSignal<VLEN>>(cx);
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let is_started = create_read_slice(
-        cx, 
-        core, 
-        |state| state.is_some()
-    );
+    let is_started = create_read_slice(cx, core, |state| state.is_some());
 
     create_effect(cx, move |_| {
         log!("{}", is_started());
     });
 
     view! {
-        cx,
-            <div
-                class="px-4 py-2 select-none"
-                class=("font-bold", move || FrontEndVLEN(selected_vlen()) == vlen)
-                class=("bg-gray-100", move || FrontEndVLEN(selected_vlen()) == vlen)
-                class=("hover:bg-gray-100", move || !is_started())
-                prop:disabled=is_started
-                on:click=move |_| {
-                    selected_vlen.set(*vlen);
-                }
-            >
-                {vlen.to_string()}
-            </div>
-        }
+    cx,
+        <div
+            class="px-4 py-2 select-none"
+            class=("font-bold", move || FrontEndVLEN(selected_vlen()) == vlen)
+            class=("bg-gray-100", move || FrontEndVLEN(selected_vlen()) == vlen)
+            class=("hover:bg-gray-100", move || !is_started())
+            prop:disabled=is_started
+            on:click=move |_| {
+                selected_vlen.set(*vlen);
+            }
+        >
+            {vlen.to_string()}
+        </div>
+    }
 }
-

@@ -9,11 +9,8 @@ use leptos::*;
 use vector_config::VectorConfig;
 use vector_registers::VectorRegisters;
 
-
 #[component]
-pub fn VectorView(
-    cx: Scope
-) -> impl IntoView {
+pub fn VectorView(cx: Scope) -> impl IntoView {
     view! {cx,
         <>
             <VectorConfig />
@@ -32,13 +29,14 @@ impl ToString for FrontEndVLEN {
             VLEN::V128 => "128b",
             VLEN::V256 => "256b",
             VLEN::V512 => "512b",
-        }.to_string()
+        }
+        .to_string()
     }
 }
 
 impl Deref for FrontEndVLEN {
     type Target = VLEN;
-    
+
     fn deref(&self) -> &Self::Target {
         &self.0
     }
@@ -47,13 +45,13 @@ impl Deref for FrontEndVLEN {
 #[derive(Clone, Copy, PartialEq)]
 pub enum FrontEndSEW {
     Default,
-    Exact((SEW, SEWType))
+    Exact((SEW, SEWType)),
 }
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum SEWType {
     Int,
-    Fp
+    Fp,
 }
 
 impl FrontEndSEW {
@@ -79,14 +77,15 @@ impl ToString for FrontEndSEW {
             Self::Exact((SEW::E32, SEWType::Fp)) => "32b (fp)",
             Self::Exact((SEW::E64, SEWType::Fp)) => "64b (fp)",
             Self::Exact((SEW::E128, SEWType::Fp)) => "128b (fp)",
-        }.to_owned()
+        }
+        .to_owned()
     }
 }
 
 #[derive(Clone, Copy)]
 pub enum FrontEndLMUL {
     Default,
-    Exact(LMUL)
+    Exact(LMUL),
 }
 
 impl FrontEndLMUL {
@@ -105,11 +104,12 @@ impl ToString for FrontEndLMUL {
             Self::Exact(LMUL::MF8) => "1/8",
             Self::Exact(LMUL::MF4) => "1/4",
             Self::Exact(LMUL::MF2) => "1/2",
-            Self::Exact(LMUL::M1) =>  "1",
-            Self::Exact(LMUL::M2) =>  "2",
-            Self::Exact(LMUL::M4) =>  "4",
-            Self::Exact(LMUL::M8) =>  "8",
-            Self::Exact(LMUL::M16) =>  "16",
-        }.to_owned()
+            Self::Exact(LMUL::M1) => "1",
+            Self::Exact(LMUL::M2) => "2",
+            Self::Exact(LMUL::M4) => "4",
+            Self::Exact(LMUL::M8) => "8",
+            Self::Exact(LMUL::M16) => "16",
+        }
+        .to_owned()
     }
 }

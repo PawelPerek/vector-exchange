@@ -1,13 +1,13 @@
-mod top_bar;
 mod program_view;
 mod registers_view;
+mod top_bar;
 
-use leptos::*;
 use eeric::prelude::*;
+use leptos::*;
 
-use top_bar::TopBar;
 use program_view::ProgramView;
 use registers_view::RegistersView;
+use top_bar::TopBar;
 
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {

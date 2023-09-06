@@ -1,17 +1,23 @@
 use eeric::prelude::*;
 use leptos::*;
 
-use super::{FrontEndSEW, FrontEndLMUL, SEWType};
-
+use super::{FrontEndLMUL, FrontEndSEW, SEWType};
 
 #[component]
-pub fn VectorRegisters(
-    cx: Scope,
-) -> impl IntoView 
-{
+pub fn VectorRegisters(cx: Scope) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let v_regs = create_read_slice(cx, core, |state| state.as_ref().map(|machine| machine.registers.snapshot().v).unwrap_or_default());
-    let vec_engine = create_read_slice(cx, core, |state| state.as_ref().map(|machine| machine.vec_engine.snapshot()).unwrap_or_default());
+    let v_regs = create_read_slice(cx, core, |state| {
+        state
+            .as_ref()
+            .map(|machine| machine.registers.snapshot().v)
+            .unwrap_or_default()
+    });
+    let vec_engine = create_read_slice(cx, core, |state| {
+        state
+            .as_ref()
+            .map(|machine| machine.vec_engine.snapshot())
+            .unwrap_or_default()
+    });
 
     let selected_vlen = expect_context::<RwSignal<VLEN>>(cx);
 
@@ -30,7 +36,7 @@ pub fn VectorRegisters(
             {move || if v_regs().is_empty() {
                 std::iter::repeat(0).take(32).enumerate().map(|(index, _)| {
                     view! {
-                        cx, 
+                        cx,
                         <>
                             <SingleRegister
                                 index=index
@@ -45,7 +51,7 @@ pub fn VectorRegisters(
             } else {
                 v_regs().chunks(vec_engine().vlen.byte_length()).enumerate().map(|(index, vreg)| {
                     view! {
-                        cx, 
+                        cx,
                         <>
                             <SingleRegister
                                 index=index
@@ -63,23 +69,21 @@ pub fn VectorRegisters(
     }
 }
 
-
-
 #[component]
 fn SingleRegister(
     cx: Scope,
     index: usize,
-    vreg: Vec<u8>, 
+    vreg: Vec<u8>,
     vlen: VLEN,
     sew: (SEW, SEWType),
-    lmul: LMUL
+    lmul: LMUL,
 ) -> impl IntoView {
     let has_large_content = vlen == VLEN::V256 && sew.0 == SEW::E8;
 
     view! {
         cx,
         <div class="flex h-8 divide-y">
-            <div 
+            <div
                 class="grid justify-center items-center bg-gray-200"
                 class=("w-12", move || !has_large_content)
                 class=("text-xs", move || has_large_content)
@@ -87,13 +91,13 @@ fn SingleRegister(
             >{vreg_name(index)}</div>
             <div class="flex divide-x">
                 {move || vreg_view(
-                    &vreg, 
-                    sew, 
+                    &vreg,
+                    sew,
                     lmul,
                 ).into_iter().map(|vreg_value| {
                     view! {
                         cx,
-                        <div 
+                        <div
                             class="grid justify-center items-center bg-white px-1"
                             class=("text-xs", move || vlen == VLEN::V256 && sew.0 == SEW::E8)
                             >{vreg_value}</div>
@@ -101,14 +105,10 @@ fn SingleRegister(
                 }).collect::<Vec<_>>()}
             </div>
         </div>
-    }   
+    }
 }
 
-fn vreg_view(
-    bytes: &[u8], 
-    sew: (SEW, SEWType), 
-    _lmul: LMUL,
-) -> Vec<String> {
+fn vreg_view(bytes: &[u8], sew: (SEW, SEWType), _lmul: LMUL) -> Vec<String> {
     match sew {
         (SEW::E8, SEWType::Int) => bytes
             .iter()
@@ -152,7 +152,7 @@ fn vreg_view(
             .map(u64::from_le_bytes)
             .map(|byte| ToString::to_string(&byte))
             .collect::<Vec<_>>(),
-        _ => unreachable!()
+        _ => unreachable!(),
     }
 }
 

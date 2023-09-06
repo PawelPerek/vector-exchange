@@ -12,8 +12,8 @@ extern "C" {
 
 #[component]
 pub fn Editor(cx: Scope, set_code: WriteSignal<String>) -> impl IntoView {
-    let editor_parent = view!{ cx, 
-        <div class="h-full w-full"></div>  
+    let editor_parent = view! { cx,
+        <div class="h-full w-full"></div>
     };
 
     create_monaco(&editor_parent);

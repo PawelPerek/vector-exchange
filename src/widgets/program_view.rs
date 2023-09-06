@@ -2,21 +2,15 @@ mod editor;
 
 use std::collections::HashMap;
 
+use editor::Editor;
 use eeric::prelude::*;
 use eeric_interpreter::prelude::*;
-use leptos::{*, leptos_dom::log};
-use editor::Editor;
+use leptos::{leptos_dom::log, *};
 
 #[component]
-pub fn ProgramView(
-    cx: Scope, 
-) -> impl IntoView {
+pub fn ProgramView(cx: Scope) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let core_exists = create_read_slice(
-        cx, 
-        core, 
-        |machine| machine.is_some()
-    );
+    let core_exists = create_read_slice(cx, core, |machine| machine.is_some());
 
     let (code, set_code) = create_signal(cx, "".to_owned());
     let (errors, set_errors) = create_signal(cx, HashMap::<usize, String>::new());
@@ -40,7 +34,7 @@ pub fn ProgramView(
                 {move || if core_exists() {
                     view! {cx, <StepButton />}
                 } else {
-                    view! {cx, <StartButton 
+                    view! {cx, <StartButton
                             code=code
                             set_errors=set_errors
                         />}
@@ -55,10 +49,10 @@ pub fn ProgramView(
 fn ResetButton(cx: Scope) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
     let (is_started, reset) = create_slice(
-        cx, 
-        core, 
+        cx,
+        core,
         |state| state.is_some(),
-        |state, _: ()| *state = None
+        |state, _: ()| *state = None,
     );
 
     view! {
@@ -75,24 +69,20 @@ fn ResetButton(cx: Scope) -> impl IntoView {
 
 #[component]
 fn StartButton(
-    cx: Scope, 
+    cx: Scope,
     code: ReadSignal<String>,
-    set_errors: WriteSignal<HashMap<usize, String>>
+    set_errors: WriteSignal<HashMap<usize, String>>,
 ) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
     let vlen = expect_context::<RwSignal<VLEN>>(cx);
-    let build_machine = create_write_slice(
-        cx, 
-        core, 
-        move |machine, instructions| *machine = Some(RvCoreBuilder::default()
-            .vec_engine(
-                VectorEngineBuilder::default()
-                .vlen(vlen())
-                .build())
-            .instructions(instructions)
-            .build()
+    let build_machine = create_write_slice(cx, core, move |machine, instructions| {
+        *machine = Some(
+            RvCoreBuilder::default()
+                .vec_engine(VectorEngineBuilder::default().vlen(vlen()).build())
+                .instructions(instructions)
+                .build(),
         )
-    );
+    });
 
     view! {
         cx,
@@ -113,21 +103,17 @@ fn StartButton(
 #[component]
 fn StepButton(cx: Scope) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let machine_step = create_write_slice(
-        cx, 
-        core, 
-        |machine, _: ()| {
-            let result = machine
-                .as_mut()
-                .expect("Machine was Option::None although step button was rendered")
-                .step();
+    let machine_step = create_write_slice(cx, core, |machine, _: ()| {
+        let result = machine
+            .as_mut()
+            .expect("Machine was Option::None although step button was rendered")
+            .step();
 
-            if result.is_none() {
-                *machine = None;
-            }
+        if result.is_none() {
+            *machine = None;
         }
-    );
-    
+    });
+
     view! {
         cx,
         <button

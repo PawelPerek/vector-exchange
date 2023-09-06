@@ -42,18 +42,15 @@ fn xreg_name(index: usize) -> String {
     .to_owned()
 }
 
-
 #[component]
-pub fn IntegerRegisters(
-    cx: Scope
-) -> impl IntoView
-{
+pub fn IntegerRegisters(cx: Scope) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let x_regs = create_read_slice(
-        cx, 
-        core, 
-        |state| state.as_ref().map(|machine| machine.registers.snapshot().x).unwrap_or_default()
-    );
+    let x_regs = create_read_slice(cx, core, |state| {
+        state
+            .as_ref()
+            .map(|machine| machine.registers.snapshot().x)
+            .unwrap_or_default()
+    });
 
     view! {
         cx,
@@ -68,4 +65,4 @@ pub fn IntegerRegisters(
             </div>
         </div>
     }
-}       
+}

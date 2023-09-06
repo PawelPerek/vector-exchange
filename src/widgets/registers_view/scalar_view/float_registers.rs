@@ -4,17 +4,15 @@ use leptos::*;
 use super::scalar_register::ScalarRegister;
 
 #[component]
-pub fn FloatRegisters(
-    cx: Scope
-) -> impl IntoView
-{
+pub fn FloatRegisters(cx: Scope) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let f_regs = create_read_slice(
-        cx, 
-        core, 
-        |state| state.as_ref().map(|machine| machine.registers.snapshot().f).unwrap_or_default()
-    );
- 
+    let f_regs = create_read_slice(cx, core, |state| {
+        state
+            .as_ref()
+            .map(|machine| machine.registers.snapshot().f)
+            .unwrap_or_default()
+    });
+
     view! {
         cx,
         <div

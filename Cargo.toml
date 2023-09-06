@@ -16,6 +16,6 @@ codegen-units = 1
 
 [dependencies]
 leptos = { version = "0.4.10", features = ["csr", "nightly"] }
-eeric = "0.0.34"
-eeric-interpreter = "0.0.30"
+eeric = "0.0.35"
+eeric-interpreter = "0.0.31"
 wasm-bindgen = "0.2.87"
