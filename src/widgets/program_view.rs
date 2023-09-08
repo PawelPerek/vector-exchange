@@ -105,8 +105,6 @@ fn StartButton(
                 match compile_result {
                     Err(vec) => set_errors(vec),
                     Ok(result) => {
-                        log!("{:?}", &result.instructions);
-
                         build_machine(result.instructions);
                         let map = result.instructions_addresses;
                         
