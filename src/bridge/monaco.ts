@@ -1,4 +1,4 @@
-import { editor, languages } from "monaco-editor";
+import { editor, languages, Range } from "monaco-editor";
 import { monarchDefinition } from "./monarch";
 
 const scalarCode = `
@@ -73,4 +73,24 @@ export function onInput(listener: (value: string) => void) {
     currentCode = code;
     listener(code)
   });
+}
+
+export function disable() {
+  monaco.updateOptions({readOnly: true});
+}
+
+export function enable() {
+  monaco.updateOptions({readOnly: false});
+}
+
+export function highlightLine(line: number) {
+  monaco.createDecorationsCollection([
+    {
+      range: new Range(line, 1, line + 1, 1),
+      options: {
+        isWholeLine: true,
+        className: "highlighted-line",
+      },
+    },
+  ]);
 }

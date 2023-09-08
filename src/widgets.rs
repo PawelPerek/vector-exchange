@@ -9,16 +9,13 @@ use program_view::ProgramView;
 use registers_view::RegistersView;
 use top_bar::TopBar;
 
+pub struct HighlightedLine(pub Option<usize>);
+
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
     provide_context(cx, create_rw_signal(cx, None::<RvCore>));
     provide_context(cx, create_rw_signal(cx, VLEN::V128));
-
-    // let core = create_rw_signal(cx, None::<RvCore>);
-
-    // let reg_snapshot = move || core().map(|core| core.registers.snapshot()).unwrap_or_default();
-    // let vu_snapshot = move || core().map(|core| core.vec_engine.snapshot()).unwrap_or_default();
-    // let mem_snapshot = move || core().map(|core| core.memory.snapshot()).unwrap_or_default();
+    provide_context(cx, create_rw_signal(cx, HighlightedLine(None)));
 
     view! {
         cx,
