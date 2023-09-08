@@ -2,6 +2,8 @@ use eeric::prelude::*;
 use leptos::*;
 use wasm_bindgen::{prelude::*, JsValue};
 
+use crate::widgets::Highlight;
+
 #[wasm_bindgen]
 extern "C" {
     #[wasm_bindgen(js_namespace = monacoBridge, js_name = "create")]
@@ -51,6 +53,16 @@ pub fn Editor(cx: Scope, set_code: WriteSignal<String>) -> impl IntoView {
         }
     });
 
+    // Set highlighted line on step
+
+    let highlight = expect_context::<RwSignal<Highlight>>(cx);
+
+    create_effect(cx, move |_| {
+        match highlight.get() {
+            Highlight::On(line) => highlight_line(line),
+            Highlight::Off => highlight_line(0),
+        }
+    });
 
     editor_parent
 }

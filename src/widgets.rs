@@ -9,13 +9,17 @@ use program_view::ProgramView;
 use registers_view::RegistersView;
 use top_bar::TopBar;
 
-pub struct HighlightedLine(pub Option<usize>);
+#[derive(Clone, Copy)]
+pub enum Highlight {
+    Off,
+    On(usize)
+}
 
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
     provide_context(cx, create_rw_signal(cx, None::<RvCore>));
     provide_context(cx, create_rw_signal(cx, VLEN::V128));
-    provide_context(cx, create_rw_signal(cx, HighlightedLine(None)));
+    provide_context(cx, create_rw_signal(cx, Highlight::Off));
 
     view! {
         cx,

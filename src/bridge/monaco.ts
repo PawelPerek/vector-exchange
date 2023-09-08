@@ -2,8 +2,10 @@ import { editor, languages, Range } from "monaco-editor";
 import { monarchDefinition } from "./monarch";
 
 const scalarCode = `
-addi x1, x0, 1
+# comment
+
 loop:
+  addi x1, x0, 1
   add x1, x1, x1
   beq x0, x0, loop
 `.trimStart();
@@ -48,7 +50,6 @@ let monaco: editor.IStandaloneCodeEditor;
 let currentCode = scalarCode;
 
 export function create(parent: HTMLElement) {
-  console.log(languages.getLanguages().map(language => language.id).includes(RISCV))
   monaco = editor.create(parent, {
     value: currentCode,
     language: RISCV,
@@ -83,14 +84,21 @@ export function enable() {
   monaco.updateOptions({readOnly: false});
 }
 
+let collections: editor.IEditorDecorationsCollection | undefined;
+
 export function highlightLine(line: number) {
-  monaco.createDecorationsCollection([
-    {
-      range: new Range(line, 1, line + 1, 1),
-      options: {
-        isWholeLine: true,
-        className: "highlighted-line",
+  collections?.clear();
+  
+  if(line != 0) {
+    collections = monaco.createDecorationsCollection([
+      {
+        range: new Range(line, 1, line, 1),
+        options: {
+          isWholeLine: true,
+          className: "highlighted-line",
+        },
       },
-    },
-  ]);
+    ]);
+  }
+
 }

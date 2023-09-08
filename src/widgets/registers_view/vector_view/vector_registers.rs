@@ -24,10 +24,6 @@ pub fn VectorRegisters(cx: Scope) -> impl IntoView {
     let (sew, _set_sew) = create_signal(cx, FrontEndSEW::Default);
     let (lmul, _set_lmul) = create_signal(cx, FrontEndLMUL::Default);
 
-    create_effect(cx, move |_| {
-        log!("{:?}", vec_engine().sew.byte_length());
-    });
-
     view! {
         cx,
         <div class="bg-white rounded p-4 shadow-xl">

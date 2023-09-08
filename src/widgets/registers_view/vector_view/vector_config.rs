@@ -51,10 +51,6 @@ pub fn VlenSelector(cx: Scope, vlen: FrontEndVLEN) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
     let is_started = create_read_slice(cx, core, |state| state.is_some());
 
-    create_effect(cx, move |_| {
-        log!("{}", is_started());
-    });
-
     view! {
     cx,
         <div
