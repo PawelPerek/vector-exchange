@@ -1,6 +1,6 @@
 [package]
 name = "vector-exchange"
-version = "0.0.10"
+version = "0.0.11"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
@@ -16,6 +16,6 @@ codegen-units = 1
 
 [dependencies]
 leptos = { version = "0.4.10", features = ["csr", "nightly"] }
-eeric = "0.0.38"
-eeric-interpreter = "0.0.36"
+eeric = "0.0.39"
+eeric-interpreter = "0.0.37"
 wasm-bindgen = "0.2.87"

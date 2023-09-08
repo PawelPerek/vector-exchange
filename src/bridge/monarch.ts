@@ -814,7 +814,17 @@ export const monarchDefinition: languages.IMonarchLanguage = ({
         "fsrmi",
         "frflags",
         "fsflags",
-        "fsflagsi"
+        "fsflagsi",
+        "vle1.v",
+        "vse1.v",
+        "vfredsum.vs",
+        "vfwredsum.vs",
+        "vmandnot.mm",
+        "vmornot.mm",
+        "vpopc.m",
+        "vfrsqrte7.v",
+        "vfrece7.v",
+        "vmcpy.m",
     ],
 
     "registers": [
