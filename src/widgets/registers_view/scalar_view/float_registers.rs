@@ -18,7 +18,7 @@ pub fn FloatRegisters(cx: Scope) -> impl IntoView {
         <div
             class="text-center bg-white rounded p-4 shadow-xl"
         >
-            <h1 class="font-bold text-center border border-gray-200 p-6">Integer registers</h1>
+            <h1 class="font-bold text-center border border-gray-200 p-6">Float registers</h1>
             <div class="grid grid-cols-8 justify-items-center">
                 {move || f_regs().into_iter().enumerate().map(|(index, value)| {
                     view!{cx, <ScalarRegister name=freg_name(index) value=value.to_string() />}

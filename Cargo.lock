@@ -1980,7 +1980,7 @@ dependencies = [
 
 [[package]]
 name = "vector-exchange"
-version = "0.0.12"
+version = "0.0.12-hotfix.1"
 dependencies = [
  "eeric",
  "eeric-interpreter",
