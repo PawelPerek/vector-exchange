@@ -45,7 +45,7 @@ fn xreg_name(index: usize) -> String {
 #[component]
 pub fn IntegerRegisters(cx: Scope) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let x_regs = create_read_slice(cx, core, |state| {
+    let xregs = create_read_slice(cx, core, |state| {
         state
             .as_ref()
             .map(|machine| machine.registers.snapshot().x)
@@ -59,7 +59,7 @@ pub fn IntegerRegisters(cx: Scope) -> impl IntoView {
         >
             <h1 class="font-bold text-center border border-gray-200 p-6">Integer registers</h1>
             <div class="grid grid-cols-8 justify-items-center">
-                {move || x_regs().into_iter().enumerate().map(|(index, value)| {
+                {move || xregs().into_iter().enumerate().map(|(index, value)| {
                     view!{cx, <ScalarRegister name=xreg_name(index) value=value.to_string() />}
                 }).collect::<Vec<_>>()}
             </div>

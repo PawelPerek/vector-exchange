@@ -6,7 +6,7 @@ use super::scalar_register::ScalarRegister;
 #[component]
 pub fn FloatRegisters(cx: Scope) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let f_regs = create_read_slice(cx, core, |state| {
+    let fregs = create_read_slice(cx, core, |state| {
         state
             .as_ref()
             .map(|machine| machine.registers.snapshot().f)
@@ -20,7 +20,7 @@ pub fn FloatRegisters(cx: Scope) -> impl IntoView {
         >
             <h1 class="font-bold text-center border border-gray-200 p-6">Float registers</h1>
             <div class="grid grid-cols-8 justify-items-center">
-                {move || f_regs().into_iter().enumerate().map(|(index, value)| {
+                {move || fregs().into_iter().enumerate().map(|(index, value)| {
                     view!{cx, <ScalarRegister name=freg_name(index) value=value.to_string() />}
                 }).collect::<Vec<_>>()}
             </div>
