@@ -24,7 +24,7 @@ const vectorCode =`
 #     fa0     a
 #     a1      x
 #     a2      y
-
+li a0, 10
 saxpy:
   vsetvli a4, a0, e32, m8, ta, ma
   vle32.v v0, (a1)
@@ -47,7 +47,7 @@ languages.register({
 })
 
 let monaco: editor.IStandaloneCodeEditor;
-let currentCode = scalarCode;
+let currentCode = vectorCode;
 
 export function create(parent: HTMLElement) {
   monaco = editor.create(parent, {

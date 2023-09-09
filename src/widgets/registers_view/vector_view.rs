@@ -83,32 +83,19 @@ impl ToString for FrontEndSEW {
 }
 
 #[derive(Clone, Copy)]
-pub enum FrontEndLMUL {
-    Default,
-    Exact(LMUL),
-}
-
-impl FrontEndLMUL {
-    fn map_default(&self, default: LMUL) -> LMUL {
-        match self {
-            Self::Default => default,
-            Self::Exact(lmul) => *lmul,
-        }
-    }
-}
+pub struct FrontEndLMUL(LMUL);
 
 impl ToString for FrontEndLMUL {
     fn to_string(&self) -> String {
         match self {
-            Self::Default => "Same as vector engine",
-            Self::Exact(LMUL::MF8) => "1/8",
-            Self::Exact(LMUL::MF4) => "1/4",
-            Self::Exact(LMUL::MF2) => "1/2",
-            Self::Exact(LMUL::M1) => "1",
-            Self::Exact(LMUL::M2) => "2",
-            Self::Exact(LMUL::M4) => "4",
-            Self::Exact(LMUL::M8) => "8",
-            Self::Exact(LMUL::M16) => "16",
+            Self(LMUL::MF8) => "1/8",
+            Self(LMUL::MF4) => "1/4",
+            Self(LMUL::MF2) => "1/2",
+            Self(LMUL::M1) => "1",
+            Self(LMUL::M2) => "2",
+            Self(LMUL::M4) => "4",
+            Self(LMUL::M8) => "8",
+            Self(LMUL::M16) => "16",
         }
         .to_owned()
     }

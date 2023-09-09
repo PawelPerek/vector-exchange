@@ -27,19 +27,18 @@ pub fn VectorConfig(cx: Scope) -> impl IntoView {
         >
             <div style="grid-area: vlen" class="flex justify-evenly items-center">
                 <span class="font-bold">Machine VLEN</span>
-                <div class="flex divide-x shadow rounded cursor-pointer">
+                <div class="flex divide-x shadow rounded">
                     <VlenSelector vlen={FrontEndVLEN(VLEN::V64)} />
                     <VlenSelector vlen={FrontEndVLEN(VLEN::V128)} />
                     <VlenSelector vlen={FrontEndVLEN(VLEN::V256)} />
-                    // Impossible to style :/
-                    // <VlenSelector vlen={FrontEndVLEN(VLEN::V512)} current_vlen={selected_vlen}/>
+                    <VlenSelector vlen={FrontEndVLEN(VLEN::V512)} />
                 </div>
             </div>
             <div style="grid-area: sew" class="flex flex-col justify-center items-center font-bold">
                 Machine SEW = {move || FrontEndSEW::Exact((vec_engine().sew, SEWType::Int)).to_string()}
             </div>
             <div style="grid-area: lmul" class="flex justify-center items-center font-bold">
-                Machine LMUL = {move || FrontEndLMUL::Exact(vec_engine().lmul).to_string()}
+                Machine LMUL = {move || FrontEndLMUL(vec_engine().lmul).to_string()}
             </div>
         </div>
     }
@@ -58,6 +57,7 @@ pub fn VlenSelector(cx: Scope, vlen: FrontEndVLEN) -> impl IntoView {
             class=("font-bold", move || FrontEndVLEN(selected_vlen()) == vlen)
             class=("bg-gray-100", move || FrontEndVLEN(selected_vlen()) == vlen)
             class=("hover:bg-gray-100", move || !is_started())
+            class=("hover:cursor-pointer", move || !is_started())
             prop:disabled=is_started
             on:click=move |_| {
                 selected_vlen.set(*vlen);

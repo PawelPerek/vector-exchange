@@ -1,17 +1,18 @@
 use eeric::prelude::*;
 use leptos::*;
 
-use super::{FrontEndLMUL, FrontEndSEW, SEWType};
+use super::{FrontEndSEW, SEWType};
 
 #[component]
 pub fn VectorRegisters(cx: Scope) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let v_regs = create_read_slice(cx, core, |state| {
+    let vregs = create_read_slice(cx, core, |state| {
         state
             .as_ref()
             .map(|machine| machine.registers.snapshot().v)
             .unwrap_or_default()
     });
+
     let vec_engine = create_read_slice(cx, core, |state| {
         state
             .as_ref()
@@ -21,15 +22,32 @@ pub fn VectorRegisters(cx: Scope) -> impl IntoView {
 
     let selected_vlen = expect_context::<RwSignal<VLEN>>(cx);
 
+    let vlen_view = move || if vregs().is_empty() { selected_vlen() } else { vec_engine().vlen };
+
     let (sew, _set_sew) = create_signal(cx, FrontEndSEW::Default);
-    let (lmul, _set_lmul) = create_signal(cx, FrontEndLMUL::Default);
+
+    let grid_cols = move || 
+        (match vlen_view() {
+            VLEN::V512 => 1,
+            VLEN::V256 => 1,
+            VLEN::V128 => 2,
+            VLEN::V64 => 2,
+        }) * 
+        (vlen_view().byte_length() / sew().map_default(vec_engine().sew).0.byte_length() + 1);
+
+    create_effect(cx, move |_| {
+        log!("{}", grid_cols());
+    });
 
     view! {
         cx,
-        <div class="bg-white rounded p-4 shadow-xl">
+        <div class="bg-white rounded p-4 shadow-xl max-h-[75%] overflow-y-scroll">
             <h1 class="font-bold text-center border border-gray-200 p-6">Vector registers</h1>
-            <div class="grid grid-cols-2 border border-gray-200">
-            {move || if v_regs().is_empty() {
+            <div
+                class="grid border border-gray-200 divide-x divide-y"
+                style=move || format!("grid-template-columns: repeat({}, max-content)", grid_cols())
+                >
+            {move || if vregs().is_empty() {
                 std::iter::repeat(0).take(32).enumerate().map(|(index, _)| {
                     view! {
                         cx,
@@ -37,24 +55,22 @@ pub fn VectorRegisters(cx: Scope) -> impl IntoView {
                             <SingleRegister
                                 index=index
                                 vreg=vec![0; selected_vlen().byte_length()]
-                                vlen=selected_vlen()
+                                vlen=vlen_view()
                                 sew=sew().map_default(vec_engine().sew)
-                                lmul=lmul().map_default(vec_engine().lmul)
                             />
                         </>
                     }
                 }).collect::<Vec<_>>()
             } else {
-                v_regs().chunks(vec_engine().vlen.byte_length()).enumerate().map(|(index, vreg)| {
+                vregs().chunks(vec_engine().vlen.byte_length()).enumerate().map(|(index, vreg)| {
                     view! {
                         cx,
                         <>
                             <SingleRegister
                                 index=index
                                 vreg={vreg.to_vec()}
-                                vlen=vec_engine().vlen
+                                vlen=vlen_view()
                                 sew=sew().map_default(vec_engine().sew)
-                                lmul=lmul().map_default(vec_engine().lmul)
                             />
                         </>
                     }
@@ -71,40 +87,38 @@ fn SingleRegister(
     index: usize,
     vreg: Vec<u8>,
     vlen: VLEN,
-    sew: (SEW, SEWType),
-    lmul: LMUL,
+    sew: (SEW, SEWType)
 ) -> impl IntoView {
-    let has_large_content = vlen == VLEN::V256 && sew.0 == SEW::E8;
+    let has_large_content = vlen == VLEN::V512 && sew.0 == SEW::E8;
 
     view! {
         cx,
-        <div class="flex h-8 divide-y">
+        <>
             <div
-                class="grid justify-center items-center bg-gray-200"
+                class="text-center py-1 bg-gray-200"
                 class=("w-12", move || !has_large_content)
                 class=("text-xs", move || has_large_content)
                 class=("w-8", move || has_large_content)
-            >{vreg_name(index)}</div>
-            <div class="flex divide-x">
-                {move || vreg_view(
-                    &vreg,
-                    sew,
-                    lmul,
-                ).into_iter().map(|vreg_value| {
-                    view! {
-                        cx,
-                        <div
-                            class="grid justify-center items-center bg-white px-1"
-                            class=("text-xs", move || vlen == VLEN::V256 && sew.0 == SEW::E8)
-                            >{vreg_value}</div>
-                    }
-                }).collect::<Vec<_>>()}
+            >
+                {vreg_name(index)}
             </div>
-        </div>
+            {move || vreg_view(
+                &vreg,
+                sew
+            ).into_iter().map(|vreg_value| {
+                view! {
+                    cx,
+                    <div
+                        class="text-center p-1"
+                        class=("text-xs", move || has_large_content)
+                    >{vreg_value}</div>
+                }
+            }).collect::<Vec<_>>()}
+        </>
     }
 }
 
-fn vreg_view(bytes: &[u8], sew: (SEW, SEWType), _lmul: LMUL) -> Vec<String> {
+fn vreg_view(bytes: &[u8], sew: (SEW, SEWType)) -> Vec<String> {
     match sew {
         (SEW::E8, SEWType::Int) => bytes
             .iter()

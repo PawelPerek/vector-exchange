@@ -44,7 +44,7 @@ pub fn RegistersView(cx: Scope) -> impl IntoView {
             class="flex flex-col items-center bg-gray-200"
         >
             <RegistersHeader active_route={active_route}/>
-            <div class="grow w-full flex flex-col justify-evenly items-center">
+            <div class="grow w-full h-[calc(100%-5rem)] flex flex-col justify-evenly items-center">
                 {move || match active_route() {
                         Route::ScalarRegisters => view! {cx, <ScalarView /> },
                         Route::VectorRegisters => view! {cx, <VectorView /> },
