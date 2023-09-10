@@ -28,10 +28,10 @@ pub fn VectorConfig(cx: Scope) -> impl IntoView {
             <div style="grid-area: vlen" class="flex justify-evenly items-center">
                 <span class="font-bold">Machine VLEN</span>
                 <div class="flex divide-x shadow rounded">
-                    <VlenSelector vlen={FrontEndVLEN(VLEN::V64)} />
-                    <VlenSelector vlen={FrontEndVLEN(VLEN::V128)} />
-                    <VlenSelector vlen={FrontEndVLEN(VLEN::V256)} />
-                    <VlenSelector vlen={FrontEndVLEN(VLEN::V512)} />
+                    <VlenSelector vlen={FrontEndVLEN(Vlen::V64)} />
+                    <VlenSelector vlen={FrontEndVLEN(Vlen::V128)} />
+                    <VlenSelector vlen={FrontEndVLEN(Vlen::V256)} />
+                    <VlenSelector vlen={FrontEndVLEN(Vlen::V512)} />
                 </div>
             </div>
             <div style="grid-area: sew" class="flex flex-col justify-center items-center font-bold">
@@ -46,7 +46,7 @@ pub fn VectorConfig(cx: Scope) -> impl IntoView {
 
 #[component]
 pub fn VlenSelector(cx: Scope, vlen: FrontEndVLEN) -> impl IntoView {
-    let selected_vlen = expect_context::<RwSignal<VLEN>>(cx);
+    let selected_vlen = expect_context::<RwSignal<Vlen>>(cx);
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
     let is_started = create_read_slice(cx, core, |state| state.is_some());
 

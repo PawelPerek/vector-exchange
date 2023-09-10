@@ -85,7 +85,7 @@ fn StartButton(
     set_instruction_map: WriteSignal<Vec<usize>>
 ) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let vlen = expect_context::<RwSignal<VLEN>>(cx);
+    let vlen = expect_context::<RwSignal<Vlen>>(cx);
     let highlighted_line = expect_context::<RwSignal<Highlight>>(cx);
     let build_machine = create_write_slice(cx, core, move |machine, instructions| {
         *machine = Some(

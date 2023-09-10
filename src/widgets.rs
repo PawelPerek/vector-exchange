@@ -18,7 +18,7 @@ pub enum Highlight {
 #[component]
 pub fn App(cx: Scope) -> impl IntoView {
     provide_context(cx, create_rw_signal(cx, None::<RvCore>));
-    provide_context(cx, create_rw_signal(cx, VLEN::V128));
+    provide_context(cx, create_rw_signal(cx, Vlen::V128));
     provide_context(cx, create_rw_signal(cx, Highlight::Off));
 
     view! {

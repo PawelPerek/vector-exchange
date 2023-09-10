@@ -20,7 +20,7 @@ pub fn VectorRegisters(cx: Scope) -> impl IntoView {
             .unwrap_or_default()
     });
 
-    let selected_vlen = expect_context::<RwSignal<VLEN>>(cx);
+    let selected_vlen = expect_context::<RwSignal<Vlen>>(cx);
 
     let vlen_view = move || if vregs().is_empty() { selected_vlen() } else { vec_engine().vlen };
 
@@ -28,10 +28,10 @@ pub fn VectorRegisters(cx: Scope) -> impl IntoView {
 
     let grid_cols = move || 
         (match vlen_view() {
-            VLEN::V512 => 1,
-            VLEN::V256 => 1,
-            VLEN::V128 => 2,
-            VLEN::V64 => 2,
+            Vlen::V512 => 1,
+            Vlen::V256 => 1,
+            Vlen::V128 => 2,
+            Vlen::V64 => 2,
         }) * 
         (vlen_view().byte_length() / sew().map_default(vec_engine().sew).0.byte_length() + 1);
 
@@ -86,10 +86,10 @@ fn SingleRegister(
     cx: Scope,
     index: usize,
     vreg: Vec<u8>,
-    vlen: VLEN,
-    sew: (SEW, SEWType)
+    vlen: Vlen,
+    sew: (BaseSew, SEWType)
 ) -> impl IntoView {
-    let has_large_content = vlen == VLEN::V512 && sew.0 == SEW::E8;
+    let has_large_content = vlen == Vlen::V512 && sew.0 == BaseSew::E8;
 
     view! {
         cx,
@@ -118,44 +118,44 @@ fn SingleRegister(
     }
 }
 
-fn vreg_view(bytes: &[u8], sew: (SEW, SEWType)) -> Vec<String> {
+fn vreg_view(bytes: &[u8], sew: (BaseSew, SEWType)) -> Vec<String> {
     match sew {
-        (SEW::E8, SEWType::Int) => bytes
+        (BaseSew::E8, SEWType::Int) => bytes
             .iter()
             .cloned()
             .array_chunks()
             .map(u8::from_le_bytes)
             .map(|byte| ToString::to_string(&byte))
             .collect::<Vec<_>>(),
-        (SEW::E16, SEWType::Int) => bytes
+        (BaseSew::E16, SEWType::Int) => bytes
             .iter()
             .cloned()
             .array_chunks()
             .map(u16::from_le_bytes)
             .map(|byte| ToString::to_string(&byte))
             .collect::<Vec<_>>(),
-        (SEW::E32, SEWType::Int) => bytes
+        (BaseSew::E32, SEWType::Int) => bytes
             .iter()
             .cloned()
             .array_chunks()
             .map(u32::from_le_bytes)
             .map(|byte| ToString::to_string(&byte))
             .collect::<Vec<_>>(),
-        (SEW::E64, SEWType::Int) => bytes
+        (BaseSew::E64, SEWType::Int) => bytes
             .iter()
             .cloned()
             .array_chunks()
             .map(u64::from_le_bytes)
             .map(|byte| ToString::to_string(&byte))
             .collect::<Vec<_>>(),
-        (SEW::E32, SEWType::Fp) => bytes
+        (BaseSew::E32, SEWType::Fp) => bytes
             .iter()
             .cloned()
             .array_chunks()
             .map(u32::from_le_bytes)
             .map(|byte| ToString::to_string(&byte))
             .collect::<Vec<_>>(),
-        (SEW::E64, SEWType::Fp) => bytes
+        (BaseSew::E64, SEWType::Fp) => bytes
             .iter()
             .cloned()
             .array_chunks()
