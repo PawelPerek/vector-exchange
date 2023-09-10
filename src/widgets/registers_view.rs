@@ -35,7 +35,7 @@ impl ToString for RegisterRoute {
 #[component]
 pub fn RegistersView(cx: Scope) -> impl IntoView {
     use RegisterRoute as Route;
-    let active_route = create_rw_signal(cx, Route::ScalarRegisters);
+    let active_route = create_rw_signal(cx, Route::CsrRegisters);
 
     view! {
         cx,

@@ -4,7 +4,10 @@ use leptos::*;
 #[component]
 pub fn CsrView(cx: Scope) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let _ = create_read_slice(cx, core, |state| {
+
+    let (prompt, set_prompt) = create_signal(cx, "".to_owned());
+
+    let regs = create_read_slice(cx, core, |state| {
         state
             .as_ref()
             .map(|machine| machine.registers.snapshot())
@@ -13,7 +16,70 @@ pub fn CsrView(cx: Scope) -> impl IntoView {
 
     view! {cx,
         <>
-            "todo :)"
+            <input 
+                type="text"
+                prop:placeholder="Search for CSR register..."
+                on:input=move |ev| {
+                    set_prompt(event_target_value(&ev))
+                }
+                class="rounded w-3/4"
+            />
+            <div class="bg-white rounded p-4 shadow-xl max-h-[75%] overflow-y-scroll">
+                <h1 class="font-bold text-center border border-gray-200 py-6">CSR registers</h1>
+                <div class="grid grid-cols-[repeat(4,minmax(0,max-content))] px divide-x divide-y border border-gray-200">
+                    <div class="font-bold text-center bg-gray-200 px-2">Name</div>
+                    <div class="font-bold text-center bg-gray-200 px-2">Writable?</div>
+                    <div class="font-bold text-center bg-gray-200 px-2">Bit representation</div>
+                    <div class="font-bold text-center bg-gray-200 px-2">Number representation</div>
+                    {move || regs().c
+                        .iter()
+                        .enumerate()
+                        .filter_map(|(index, value)|
+                            csr_name(index).map(|name| (name, value))
+                        )
+                        .filter(|(name, _)| {
+                            name.contains(&prompt())
+                        })
+                        .map(|(name, value)| {
+                        view!{
+                            cx,
+                            <>
+                                <div class="px-2 text-center">{name}</div>
+                                <div class="px-2 text-center">true</div>
+                                <div class="px-2 text-right font-mono">{format!("{:#064b}", value)}</div>
+                                <div class="px-2 text-right font-mono">{format!("{}", value)}</div>
+                            </>
+                        }
+                    }).collect::<Vec<_>>()}
+                </div>
+            </div>
         </>
     }
+}
+
+fn csr_name(index: usize) -> Option<&'static str> {
+    let csr = match index {
+        0x0c02 => "instret",
+        0x0c82 => "instreth",
+        0x0c00 => "cycle",
+        0x0c80 => "cycleh",
+        0x0c01 => "time",
+        0x0c81 => "timeh",
+        0x0f12 => "marchit",
+        0x0003 => "fcsr",
+        0x0001 => "fflags",
+        0x0002 => "frm",
+        0x0300 => "mstatus",
+        0x0200 => "vsstatus",
+        0x0C20 => "vl",
+        0x0C21 => "vtype",
+        0x0C22 => "vlenb",
+        0x0008 => "vstart",
+        0x000A => "vxrm",
+        0x0009 => "vxsat",
+        0x000F => "vcsr",
+        _ => return None
+    };
+
+    Some(csr)
 }
