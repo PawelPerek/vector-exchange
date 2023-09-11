@@ -12,6 +12,9 @@ extern "C" {
     #[wasm_bindgen(js_namespace = monacoBridge, js_name = "onInput")]
     fn on_input(listener: &Closure<dyn Fn(String)>);
 
+    #[wasm_bindgen(js_namespace = monacoBridge, js_name = "setInput")]
+    fn set_input(input: String);
+
     #[wasm_bindgen(js_namespace = monacoBridge)]
     fn enable();
 
@@ -23,19 +26,22 @@ extern "C" {
 }
 
 #[component]
-pub fn Editor(cx: Scope, set_code: WriteSignal<String>) -> impl IntoView {
+pub fn Editor(cx: Scope, code: RwSignal<String>) -> impl IntoView {
     // Create
     
-    let editor_parent = view! { cx,
-        <div class="h-full w-full"></div>
-    };
+    let editor_parent = view! { cx, <div class="h-full w-full"></div> };
 
     create_monaco(&editor_parent);
 
     // Listen to code change
 
-    let event_listener = Closure::wrap(Box::new(move |code: String| {
-        set_code(code);
+    create_effect(cx, move |_| {
+        log!("{}", code());
+        set_input(code());
+    });
+
+    let event_listener = Closure::wrap(Box::new(move |new_code: String| {
+        code.set(new_code);
     }) as Box<dyn Fn(String)>);
 
     on_input(&event_listener);

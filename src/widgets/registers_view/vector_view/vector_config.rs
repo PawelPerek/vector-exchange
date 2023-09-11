@@ -15,30 +15,31 @@ pub fn VectorConfig(cx: Scope) -> impl IntoView {
             .unwrap_or_default()
     });
 
-    view! {
-    cx,
+    view! { cx,
         <div
             style=r#"
-                grid-template:
-                    "vlen vlen"
-                    "sew  lmul";
+            grid-template:
+              "vlen vlen"
+              "sew  lmul";
             "#
             class="w-2/3 max-w-xl h-40 grid rounded divide-x divide-y bg-white"
         >
             <div style="grid-area: vlen" class="flex justify-evenly items-center">
                 <span class="font-bold">Machine VLEN</span>
                 <div class="flex divide-x shadow rounded">
-                    <VlenSelector vlen={FrontEndVLEN(Vlen::V64)} />
-                    <VlenSelector vlen={FrontEndVLEN(Vlen::V128)} />
-                    <VlenSelector vlen={FrontEndVLEN(Vlen::V256)} />
-                    <VlenSelector vlen={FrontEndVLEN(Vlen::V512)} />
+                    <VlenSelector vlen=FrontEndVLEN(Vlen::V64)/>
+                    <VlenSelector vlen=FrontEndVLEN(Vlen::V128)/>
+                    <VlenSelector vlen=FrontEndVLEN(Vlen::V256)/>
+                    <VlenSelector vlen=FrontEndVLEN(Vlen::V512)/>
                 </div>
             </div>
             <div style="grid-area: sew" class="flex flex-col justify-center items-center font-bold">
-                Machine SEW = {move || FrontEndSEW::Exact((vec_engine().sew, SEWType::Int)).to_string()}
+                Machine SEW =
+                {move || FrontEndSEW::Exact((vec_engine().sew, SEWType::Int)).to_string()}
             </div>
             <div style="grid-area: lmul" class="flex justify-center items-center font-bold">
-                Machine LMUL = {move || FrontEndLMUL(vec_engine().lmul).to_string()}
+                Machine LMUL =
+                {move || FrontEndLMUL(vec_engine().lmul).to_string()}
             </div>
         </div>
     }
@@ -50,8 +51,7 @@ pub fn VlenSelector(cx: Scope, vlen: FrontEndVLEN) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
     let is_started = create_read_slice(cx, core, |state| state.is_some());
 
-    view! {
-    cx,
+    view! { cx,
         <div
             class="px-4 py-2 select-none"
             class=("font-bold", move || FrontEndVLEN(selected_vlen()) == vlen)
@@ -63,6 +63,7 @@ pub fn VlenSelector(cx: Scope, vlen: FrontEndVLEN) -> impl IntoView {
                 selected_vlen.set(*vlen);
             }
         >
+
             {vlen.to_string()}
         </div>
     }

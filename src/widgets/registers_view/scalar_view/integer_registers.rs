@@ -52,16 +52,22 @@ pub fn IntegerRegisters(cx: Scope) -> impl IntoView {
             .unwrap_or_default()
     });
 
-    view! {
-        cx,
-        <div
-            class="text-center bg-white rounded p-4 shadow-xl"
-        >
+    view! { cx,
+        <div class="text-center bg-white rounded p-4 shadow-xl">
             <h1 class="font-bold text-center border border-gray-200 p-6">Integer registers</h1>
             <div class="grid grid-cols-8 justify-items-center">
-                {move || xregs().into_iter().enumerate().map(|(index, value)| {
-                    view!{cx, <ScalarRegister name=xreg_name(index) value=value.to_string() />}
-                }).collect::<Vec<_>>()}
+                {move || {
+                    xregs()
+                        .into_iter()
+                        .enumerate()
+                        .map(|(index, value)| {
+                            view! { cx,
+                                <ScalarRegister name=xreg_name(index) value=value.to_string()/>
+                            }
+                        })
+                        .collect::<Vec<_>>()
+                }}
+
             </div>
         </div>
     }

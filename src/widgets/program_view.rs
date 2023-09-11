@@ -1,8 +1,12 @@
 mod editor;
+mod examples_repo;
+mod top_bar;
 
 use std::collections::HashMap;
 
 use editor::Editor;
+use top_bar::TopBar;
+use examples_repo::get_example;
 use eeric::prelude::*;
 use eeric_interpreter::prelude::*;
 use leptos::{leptos_dom::log, *};
@@ -14,38 +18,50 @@ pub fn ProgramView(cx: Scope) -> impl IntoView {
     let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
     let core_exists = create_read_slice(cx, core, |machine| machine.is_some());
 
-    let (code, set_code) = create_signal(cx, "".to_owned());
+    let example = create_rw_signal(cx, Example::Memcpy);
+
+    let code = create_rw_signal(cx, "".to_owned());
     let (errors, set_errors) = create_signal(cx, HashMap::<usize, String>::new());
     let (instruction_map, set_instruction_map) = create_signal(cx, vec![]);
+
+    create_effect(cx, move |_| {
+        let example = get_example(example()).to_owned();
+        code.set(example);
+    });
 
     create_effect(cx, move |_| {
         log!("{:?}", errors());
     });
 
-    view! {
-        cx,
+    create_effect(cx, move |_| {
+        // Without this log of Signal<Code> it doesn't refresh in editor, hmm...
+        log!("{:?}", code());
+    });
+
+    view! { cx,
         <div
             style="grid-area: pro"
             class="flex flex-col justify-center items-center content-center"
         >
-            <Editor set_code=set_code/>
-            <div
-                class="flex w-full p-4 justify-between bg-zinc-800"
-            >
-                <ResetButton />
+            <TopBar example={example}/>
+            <Editor code=code/>
+            <div class="flex w-full p-4 justify-between bg-zinc-800">
+                <ResetButton/>
 
-                {move || if core_exists() {
-                    view! {cx, <StepButton 
-                            instruction_map=instruction_map
-                        />}
-                } else {
-                    view! {cx, <StartButton
-                            code=code
-                            set_errors=set_errors
-                            set_instruction_map=set_instruction_map
-                        />}
+                {move || {
+                    if core_exists() {
+                        view! { cx, <StepButton instruction_map=instruction_map/> }
+                    } else {
+                        view! { cx,
+                            <StartButton
+                                code=code.read_only()
+                                set_errors=set_errors
+                                set_instruction_map=set_instruction_map
+                            />
+                        }
                     }
-                }
+                }}
+
             </div>
         </div>
     }
@@ -65,15 +81,17 @@ fn ResetButton(cx: Scope) -> impl IntoView {
         }
     );
 
-    view! {
-        cx,
+    view! { cx,
         <button
             prop:disabled=move || !is_started()
-            class="rounded inline-block w-fit content p-3 px-4"
+            class="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm"
             class=("bg-zinc-400", move || !is_started())
             class=("text-zinc-600", move || !is_started())
             class=("bg-red-500", is_started)
-            on:click=move |_| reset(())>Reset</button>
+            on:click=move |_| reset(())
+        >
+            Reset
+        </button>
     }
 }
 
@@ -96,10 +114,9 @@ fn StartButton(
         );
     });
 
-    view! {
-        cx,
+    view! { cx,
         <button
-            class="rounded inline-block w-fit content py-3 px-4 bg-gray-300"
+            class="rounded-md bg-white/10 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20"
             on:click=move |_| {
                 let compile_result = Interpreter::compile(code());
                 match compile_result {
@@ -107,15 +124,15 @@ fn StartButton(
                     Ok(result) => {
                         build_machine(result.instructions);
                         let map = result.instructions_addresses;
-                        
                         if let Some(first) = map.first() {
                             highlighted_line.set(Highlight::On(*first + 1));
                         }
-
                         set_instruction_map(map);
                     }
                 }
-            }>
+            }
+        >
+
             Compile
         </button>
     }
@@ -146,12 +163,33 @@ fn StepButton(
         }
     });
 
-    view! {
-        cx,
+    view! { cx,
         <button
-            class="rounded inline-block w-fit content p-3 px-4 shadow-lg bg-green-500"
-            on:click=move |_| machine_step(())>
+            class="rounded-md bg-green-700 px-3 text-sm font-semibold text-white shadow-sm hover:bg-green-600"
+            on:click=move |_| machine_step(())
+        >
             Step
         </button>
+    }
+}
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum Example {
+    Memcpy,
+    Strcpy,
+    Strncpy,
+    Strlen,
+    Saxpy
+}
+
+impl ToString for Example {
+    fn to_string(&self) -> String {
+        match self {
+            Self::Memcpy => "memcpy".to_owned(),
+            Self::Strcpy => "strcpy".to_owned(),
+            Self::Strncpy => "strncpy".to_owned(),
+            Self::Strlen => "strlen".to_owned(),
+            Self::Saxpy => "saxpy".to_owned(),
+        }
     }
 }

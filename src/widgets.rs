@@ -21,18 +21,18 @@ pub fn App(cx: Scope) -> impl IntoView {
     provide_context(cx, create_rw_signal(cx, Vlen::V128));
     provide_context(cx, create_rw_signal(cx, Highlight::Off));
 
-    view! {
-        cx,
+    view! { cx,
         <div
             style=r#"
             grid-template:
-                "top top" 4rem
-                "pro reg" calc(100vh - 4rem) / 40vw 60vw;
+            "top top" 4rem
+            "pro reg" calc(100vh - 4rem) / 40vw 60vw;
             "#
-         class="grid h-screen overflow-y-hidden">
-            <TopBar />
-            <ProgramView />
-            <RegistersView />
+            class="grid h-screen overflow-y-hidden"
+        >
+            <TopBar/>
+            <ProgramView/>
+            <RegistersView/>
         </div>
     }
 }

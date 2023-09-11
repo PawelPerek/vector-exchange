@@ -39,43 +39,52 @@ pub fn VectorRegisters(cx: Scope) -> impl IntoView {
         log!("{}", grid_cols());
     });
 
-    view! {
-        cx,
+    view! { cx,
         <div class="bg-white rounded p-4 shadow-xl max-h-[75%] overflow-y-scroll">
             <h1 class="font-bold text-center border border-gray-200 p-6">Vector registers</h1>
             <div
                 class="grid border border-gray-200 divide-x divide-y"
                 style=move || format!("grid-template-columns: repeat({}, max-content)", grid_cols())
-                >
-            {move || if vregs().is_empty() {
-                std::iter::repeat(0).take(32).enumerate().map(|(index, _)| {
-                    view! {
-                        cx,
-                        <>
-                            <SingleRegister
-                                index=index
-                                vreg=vec![0; selected_vlen().byte_length()]
-                                vlen=vlen_view()
-                                sew=sew().map_default(vec_engine().sew)
-                            />
-                        </>
+            >
+                {move || {
+                    if vregs().is_empty() {
+                        std::iter::repeat(0)
+                            .take(32)
+                            .enumerate()
+                            .map(|(index, _)| {
+                                view! { cx,
+                                    <>
+                                        <SingleRegister
+                                            index=index
+                                            vreg=vec![0; selected_vlen().byte_length()]
+                                            vlen=vlen_view()
+                                            sew=sew().map_default(vec_engine().sew)
+                                        />
+                                    </>
+                                }
+                            })
+                            .collect::<Vec<_>>()
+                    } else {
+                        vregs()
+                            .chunks(vec_engine().vlen.byte_length())
+                            .enumerate()
+                            .map(|(index, vreg)| {
+
+                                view! { cx,
+                                    <>
+                                        <SingleRegister
+                                            index=index
+                                            vreg=vreg.to_vec()
+                                            vlen=vlen_view()
+                                            sew=sew().map_default(vec_engine().sew)
+                                        />
+                                    </>
+                                }
+                            })
+                            .collect::<Vec<_>>()
                     }
-                }).collect::<Vec<_>>()
-            } else {
-                vregs().chunks(vec_engine().vlen.byte_length()).enumerate().map(|(index, vreg)| {
-                    view! {
-                        cx,
-                        <>
-                            <SingleRegister
-                                index=index
-                                vreg={vreg.to_vec()}
-                                vlen=vlen_view()
-                                sew=sew().map_default(vec_engine().sew)
-                            />
-                        </>
-                    }
-                }).collect::<Vec<_>>()
-            }}
+                }}
+
             </div>
         </div>
     }
@@ -91,8 +100,7 @@ fn SingleRegister(
 ) -> impl IntoView {
     let has_large_content = vlen == Vlen::V512 && sew.0 == BaseSew::E8;
 
-    view! {
-        cx,
+    view! { cx,
         <>
             <div
                 class="text-center py-1 bg-gray-200"
@@ -102,18 +110,21 @@ fn SingleRegister(
             >
                 {vreg_name(index)}
             </div>
-            {move || vreg_view(
-                &vreg,
-                sew
-            ).into_iter().map(|vreg_value| {
-                view! {
-                    cx,
-                    <div
-                        class="text-center p-1"
-                        class=("text-xs", move || has_large_content)
-                    >{vreg_value}</div>
-                }
-            }).collect::<Vec<_>>()}
+            {move || {
+                vreg_view(&vreg, sew)
+                    .into_iter()
+                    .map(|vreg_value| {
+                        view! { cx,
+                            <div
+                                class="text-center p-1"
+                                class=("text-xs", move || has_large_content)
+                            >
+                                {vreg_value}
+                            </div>
+                        }
+                    })
+                    .collect::<Vec<_>>()
+            }}
         </>
     }
 }

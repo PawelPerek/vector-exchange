@@ -14,14 +14,13 @@ pub fn CsrView(cx: Scope) -> impl IntoView {
             .unwrap_or_default()
     });
 
-    view! {cx,
+    view! { cx,
         <>
-            <input 
+            <input
                 type="text"
                 prop:placeholder="Search for CSR register..."
-                on:input=move |ev| {
-                    set_prompt(event_target_value(&ev))
-                }
+                on:input=move |ev| { set_prompt(event_target_value(&ev)) }
+
                 class="rounded w-3/4"
             />
             <div class="bg-white rounded p-4 shadow-xl max-h-[75%] overflow-y-scroll">
@@ -31,26 +30,31 @@ pub fn CsrView(cx: Scope) -> impl IntoView {
                     <div class="font-bold text-center bg-gray-200 px-2">Writable?</div>
                     <div class="font-bold text-center bg-gray-200 px-2">Bit representation</div>
                     <div class="font-bold text-center bg-gray-200 px-2">Number representation</div>
-                    {move || regs().c
-                        .iter()
-                        .enumerate()
-                        .filter_map(|(index, value)|
-                            csr_name(index).map(|name| (name, value))
-                        )
-                        .filter(|(name, _)| {
-                            name.contains(&prompt())
-                        })
-                        .map(|(name, value)| {
-                        view!{
-                            cx,
-                            <>
-                                <div class="px-2 text-center">{name}</div>
-                                <div class="px-2 text-center">true</div>
-                                <div class="px-2 text-right font-mono">{format!("{:#064b}", value)}</div>
-                                <div class="px-2 text-right font-mono">{format!("{}", value)}</div>
-                            </>
-                        }
-                    }).collect::<Vec<_>>()}
+                    {move || {
+                        regs()
+                            .c
+                            .iter()
+                            .enumerate()
+                            .filter_map(|(index, value)| csr_name(index).map(|name| (name, value)))
+                            .filter(|(name, _)| { name.contains(&prompt()) })
+                            .map(|(name, value)| {
+
+                                view! { cx,
+                                    <>
+                                        <div class="px-2 text-center">{name}</div>
+                                        <div class="px-2 text-center">true</div>
+                                        <div class="px-2 text-right font-mono">
+                                            {format!("{:#064b}", value)}
+                                        </div>
+                                        <div class="px-2 text-right font-mono">
+                                            {format!("{}", value)}
+                                        </div>
+                                    </>
+                                }
+                            })
+                            .collect::<Vec<_>>()
+                    }}
+
                 </div>
             </div>
         </>
@@ -65,7 +69,7 @@ fn csr_name(index: usize) -> Option<&'static str> {
         0x0c80 => "cycleh",
         0x0c01 => "time",
         0x0c81 => "timeh",
-        0x0f12 => "marchit",
+        0x0f12 => "marchid",
         0x0003 => "fcsr",
         0x0001 => "fflags",
         0x0002 => "frm",

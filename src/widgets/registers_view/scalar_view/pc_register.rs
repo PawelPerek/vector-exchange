@@ -13,16 +13,10 @@ pub fn PcRegister(cx: Scope) -> impl IntoView {
             .unwrap_or_default()
     });
 
-    view! {
-    cx,
-    <div
-        class="text-center bg-white rounded p-4 shadow-xl"
-    >
-        {move ||
-            view! {cx,
-                    <ScalarRegister name=String::from("pc") value=pc().to_string() />
-            }
-        }
+    view! { cx,
+        <div class="text-center bg-white rounded p-4 shadow-xl">
+            {move || view! { cx, <ScalarRegister name=String::from("pc") value=pc().to_string()/> }}
+
         </div>
     }
 }

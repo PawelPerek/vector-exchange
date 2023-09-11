@@ -11,9 +11,5 @@ pub fn MemoryView(cx: Scope) -> impl IntoView {
             .unwrap_or_default()
     });
 
-    view! {cx,
-        <>
-            "todo :)"
-        </>
-    }
+    view! { cx, <>"todo :)"</> }
 }

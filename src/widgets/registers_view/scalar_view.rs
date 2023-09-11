@@ -11,11 +11,11 @@ use pc_register::PcRegister;
 
 #[component]
 pub fn ScalarView(cx: Scope) -> impl IntoView {
-    view! {cx,
+    view! { cx,
         <>
-            <PcRegister />
-            <IntegerRegisters />
-            <FloatRegisters />
+            <PcRegister/>
+            <IntegerRegisters/>
+            <FloatRegisters/>
         </>
     }
 }
