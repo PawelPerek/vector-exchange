@@ -37,17 +37,20 @@ pub fn CsrView(cx: Scope) -> impl IntoView {
                             .enumerate()
                             .filter_map(|(index, value)| csr_name(index).map(|name| (name, value)))
                             .filter(|(name, _)| { name.contains(&prompt()) })
-                            .map(|(name, value)| {
-
+                            .map(|(name, csr)| {
+                                let is_writable = csr.privilege == CsrPrivilege::ReadWrite;
                                 view! { cx,
                                     <>
                                         <div class="px-2 text-center">{name}</div>
-                                        <div class="px-2 text-center">true</div>
+                                        <div class="px-2 text-center"
+                                            class=("bg-green-100", is_writable)
+                                            class=("bg-red-100", !is_writable)
+                                        >{if is_writable { "Yes" } else { "No" }}</div>
                                         <div class="px-2 text-right font-mono">
-                                            {format!("{:#064b}", value)}
+                                            {format!("{:#064b}", csr.read())}
                                         </div>
                                         <div class="px-2 text-right font-mono">
-                                            {format!("{}", value)}
+                                            {format!("{}", csr.read())}
                                         </div>
                                     </>
                                 }
