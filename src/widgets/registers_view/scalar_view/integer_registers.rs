@@ -1,6 +1,8 @@
 use eeric::prelude::*;
 use leptos::*;
 
+use crate::widgets::MachineState;
+
 use super::scalar_register::ScalarRegister;
 
 fn xreg_name(index: usize) -> String {
@@ -44,10 +46,10 @@ fn xreg_name(index: usize) -> String {
 
 #[component]
 pub fn IntegerRegisters(cx: Scope) -> impl IntoView {
-    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let core = expect_context::<RwSignal<MachineState>>(cx);
     let xregs = create_read_slice(cx, core, |state| {
         state
-            .as_ref()
+            .read_core()
             .map(|machine| machine.registers.snapshot().x)
             .unwrap_or_default()
     });

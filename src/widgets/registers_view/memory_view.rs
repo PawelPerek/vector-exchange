@@ -1,12 +1,14 @@
 use eeric::prelude::*;
 use leptos::*;
 
+use crate::widgets::MachineState;
+
 #[component]
 pub fn MemoryView(cx: Scope) -> impl IntoView {
-    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let core = expect_context::<RwSignal<MachineState>>(cx);
     let memory = create_read_slice(cx, core, |state| {
         state
-            .as_ref()
+            .read_core()
             .map(|machine| machine.memory.snapshot())
             .unwrap_or_default()
     });

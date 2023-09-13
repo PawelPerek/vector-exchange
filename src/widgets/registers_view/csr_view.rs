@@ -1,15 +1,17 @@
 use eeric::prelude::*;
 use leptos::*;
 
+use crate::widgets::MachineState;
+
 #[component]
 pub fn CsrView(cx: Scope) -> impl IntoView {
-    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let core = expect_context::<RwSignal<MachineState>>(cx);
 
     let (prompt, set_prompt) = create_signal(cx, "".to_owned());
 
     let regs = create_read_slice(cx, core, |state| {
         state
-            .as_ref()
+            .read_core()
             .map(|machine| machine.registers.snapshot())
             .unwrap_or_default()
     });

@@ -1,21 +1,23 @@
 use eeric::prelude::*;
 use leptos::*;
 
+use crate::widgets::MachineState;
+
 use super::{FrontEndSEW, SEWType};
 
 #[component]
 pub fn VectorRegisters(cx: Scope) -> impl IntoView {
-    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let core = expect_context::<RwSignal<MachineState>>(cx);
     let vregs = create_read_slice(cx, core, |state| {
         state
-            .as_ref()
+            .read_core()
             .map(|machine| machine.registers.snapshot().v)
             .unwrap_or_default()
     });
 
     let vec_engine = create_read_slice(cx, core, |state| {
         state
-            .as_ref()
+            .read_core()
             .map(|machine| machine.vec_engine.snapshot())
             .unwrap_or_default()
     });

@@ -11,12 +11,14 @@ use eeric::prelude::*;
 use eeric_interpreter::prelude::*;
 use leptos::{leptos_dom::log, *};
 
+use crate::widgets::MachineState;
+
 use super::Highlight;
 
 #[component]
 pub fn ProgramView(cx: Scope) -> impl IntoView {
-    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let core_exists = create_read_slice(cx, core, |machine| machine.is_some());
+    let core = expect_context::<RwSignal<MachineState>>(cx);
+    let core_exists = create_read_slice(cx, core, |machine| machine.is_on());
 
     let example = create_rw_signal(cx, Example::Memcpy);
 
@@ -69,14 +71,14 @@ pub fn ProgramView(cx: Scope) -> impl IntoView {
 
 #[component]
 fn ResetButton(cx: Scope) -> impl IntoView {
-    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let core = expect_context::<RwSignal<MachineState>>(cx);
     let highlighted_line = expect_context::<RwSignal<Highlight>>(cx);
     let (is_started, reset) = create_slice(
         cx,
         core,
-        |state| state.is_some(),
+        |state| state.is_on(),
         move |state, _: ()| {
-            *state = None;
+            *state = MachineState::Off;
             highlighted_line.set(Highlight::Off);
         }
     );
@@ -103,7 +105,7 @@ fn StartButton(
     set_errors: WriteSignal<HashMap<usize, String>>,
     set_instruction_map: WriteSignal<Vec<usize>>
 ) -> impl IntoView {
-    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let core = expect_context::<RwSignal<MachineState>>(cx);
     let vlen = expect_context::<RwSignal<Vlen>>(cx);
     let highlighted_line = expect_context::<RwSignal<Highlight>>(cx);
     let build_machine = create_write_slice(cx, core, move |machine, instructions| {
@@ -114,7 +116,7 @@ fn StartButton(
         .instructions(instructions)
         .build();
 
-        *machine = Some(core);
+        *machine = MachineState::On(core);
     });
 
     view! { cx,
@@ -146,23 +148,45 @@ fn StepButton(
     cx: Scope,
     instruction_map: ReadSignal<Vec<usize>>
 ) -> impl IntoView {
-    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let core = expect_context::<RwSignal<MachineState>>(cx);
     let highlighted_line = expect_context::<RwSignal<Highlight>>(cx);
+    let (_runtime_error, set_runtime_error) = create_signal(cx, None::<String>);
     
     let machine_step = create_write_slice(cx, core, move |machine, _: ()| {
-        let result = machine
-            .as_mut()
-            .expect("Machine was Option::None although step button was rendered")
+        let option = machine
+            .rw_core()
+            .unwrap()
             .step();
 
+        let mut did_finish = false;
 
-        // TODO: change to match?
-        if result.is_none() {
-            *machine = None;
+        match (machine.read_core(), option) {
+            // Machine executed step properly
+            (Some(machine), Some(Ok(()))) => {
+                let instruction_line = machine.registers.pc / 4;
+                let instruction_index = instruction_map().get(instruction_line as usize).map(|el| el + 1);
+    
+                match instruction_index {
+                    Some(index) => highlighted_line.set(Highlight::On(index)),
+                    None => did_finish = true
+                }
+            },
+            // Machine exists, but step returned error
+            (Some(_), Some(Err(msg))) => {   
+                set_runtime_error(Some(msg)); 
+                *machine = MachineState::Off;
+            },
+            // Machine exists, but RvCore::step() returned nothing, probably impossible since
+            // instruction_map().get(instruction_line) will return None first
+            (Some(_), None) => did_finish = true,
+            // Machine is none which should not happen in Step button, panic immediatly
+            (None, _) => unreachable!()
+        };
+
+        if did_finish {
+            let finished_machine = machine.clone().finish().unwrap();
+            *machine = finished_machine;
             highlighted_line.set(Highlight::Off);
-        } else {
-            let instruction_line = machine.as_ref().unwrap().registers.pc / 4;
-            highlighted_line.set(Highlight::On(instruction_map()[instruction_line as usize] + 1));
         }
     });
 

@@ -1,16 +1,16 @@
 use eeric::prelude::*;
 use leptos::*;
 
-use crate::widgets::registers_view::vector_view::SEWType;
+use crate::widgets::{registers_view::vector_view::SEWType, MachineState};
 
 use super::{FrontEndLMUL, FrontEndSEW, FrontEndVLEN};
 
 #[component]
 pub fn VectorConfig(cx: Scope) -> impl IntoView {
-    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let core = expect_context::<RwSignal<MachineState>>(cx);
     let vec_engine = create_read_slice(cx, core, |state| {
         state
-            .as_ref()
+            .read_core()
             .map(|machine| machine.vec_engine.snapshot())
             .unwrap_or_default()
     });
@@ -48,8 +48,8 @@ pub fn VectorConfig(cx: Scope) -> impl IntoView {
 #[component]
 pub fn VlenSelector(cx: Scope, vlen: FrontEndVLEN) -> impl IntoView {
     let selected_vlen = expect_context::<RwSignal<Vlen>>(cx);
-    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
-    let is_started = create_read_slice(cx, core, |state| state.is_some());
+    let core = expect_context::<RwSignal<MachineState>>(cx);
+    let is_started = create_read_slice(cx, core, |state| state.is_on());
 
     view! { cx,
         <div

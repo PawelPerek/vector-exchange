@@ -1,15 +1,16 @@
-use eeric::prelude::*;
 use leptos::*;
+
+use crate::widgets::MachineState;
 
 use super::Example;
 
 #[component]
 pub fn TopBar(cx: Scope, example: RwSignal<Example>) -> impl IntoView {
-    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let core = expect_context::<RwSignal<MachineState>>(cx);
     let is_started = create_read_slice(
         cx,
         core,
-        |state| state.is_some()
+        |state| state.is_on()
     );
 
     let (menu_opened, set_menu_opened) = create_signal(cx, false);

@@ -1,8 +1,7 @@
-use eeric::prelude::*;
 use leptos::*;
 use wasm_bindgen::{prelude::*, JsValue};
 
-use crate::widgets::Highlight;
+use crate::widgets::{Highlight, MachineState};
 
 #[wasm_bindgen]
 extern "C" {
@@ -50,12 +49,12 @@ pub fn Editor(cx: Scope, code: RwSignal<String>) -> impl IntoView {
 
     // Update writability after compilation
 
-    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let core = expect_context::<RwSignal<MachineState>>(cx);
 
     create_effect(cx, move |_| {
         match core() {
-            Some(_) => disable(),
-            None => enable(),
+            MachineState::Off | MachineState::Finished(_) => enable(),
+            MachineState::On(_) => disable()
         }
     });
 
