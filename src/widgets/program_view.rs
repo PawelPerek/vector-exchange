@@ -84,10 +84,11 @@ fn ResetButton(cx: Scope) -> impl IntoView {
     view! { cx,
         <button
             prop:disabled=move || !is_started()
-            class="rounded-md bg-indigo-500 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm"
+            class="rounded-md px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm"
             class=("bg-zinc-400", move || !is_started())
             class=("text-zinc-600", move || !is_started())
-            class=("bg-red-500", is_started)
+            class=("bg-red-700", is_started)
+            class=("hover:bg-red-600", is_started)
             on:click=move |_| reset(())
         >
             Reset
@@ -106,12 +107,14 @@ fn StartButton(
     let vlen = expect_context::<RwSignal<Vlen>>(cx);
     let highlighted_line = expect_context::<RwSignal<Highlight>>(cx);
     let build_machine = create_write_slice(cx, core, move |machine, instructions| {
-        *machine = Some(
-            RvCoreBuilder::default()
-                .vec_engine(VectorEngineBuilder::default().vlen(vlen()).build())
-                .instructions(instructions)
-                .build()
-        );
+        let vu = VectorEngineBuilder::default().vlen(vlen()).build();
+        
+        let core = RvCoreBuilder::default()
+        .vec_engine(vu)
+        .instructions(instructions)
+        .build();
+
+        *machine = Some(core);
     });
 
     view! { cx,

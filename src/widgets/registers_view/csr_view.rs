@@ -57,7 +57,6 @@ pub fn CsrView(cx: Scope) -> impl IntoView {
                             })
                             .collect::<Vec<_>>()
                     }}
-
                 </div>
             </div>
         </>
@@ -67,11 +66,8 @@ pub fn CsrView(cx: Scope) -> impl IntoView {
 fn csr_name(index: usize) -> Option<&'static str> {
     let csr = match index {
         0x0c02 => "instret",
-        0x0c82 => "instreth",
         0x0c00 => "cycle",
-        0x0c80 => "cycleh",
         0x0c01 => "time",
-        0x0c81 => "timeh",
         0x0f12 => "marchid",
         0x0003 => "fcsr",
         0x0001 => "fflags",

@@ -1,9 +1,17 @@
+use eeric::prelude::*;
 use leptos::*;
 
 use super::Example;
 
 #[component]
 pub fn TopBar(cx: Scope, example: RwSignal<Example>) -> impl IntoView {
+    let core = expect_context::<RwSignal<Option<RvCore>>>(cx);
+    let is_started = create_read_slice(
+        cx,
+        core,
+        |state| state.is_some()
+    );
+
     let (menu_opened, set_menu_opened) = create_signal(cx, false);
 
     window_event_listener(ev::click, move |_| {
@@ -16,11 +24,14 @@ pub fn TopBar(cx: Scope, example: RwSignal<Example>) -> impl IntoView {
                 <div>
                     <button
                         type="button"
-                        class="inline-flex w-full justify-center gap-x-1.5 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
+                        class="inline-flex w-full justify-center gap-x-1.5 rounded-md px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1"
+                        class=("bg-gray-500", is_started)
+                        class=("bg-white", move || !is_started())
                         id="menu-button"
                         aria-expanded="true"
                         aria-haspopup="true"
                         on:click=move |_| set_menu_opened.update(|menu| *menu = !*menu)
+                        prop:disabled=is_started
                     >
                         Examples
                         <svg

@@ -7,6 +7,7 @@
     "build:rs:release": "trunk build --release",
     "build:rs:public": "trunk build --release --public-url /vector-exchange",
     "build:rs:watch": "trunk serve",
+    "build:rs:watch:release": "trunk serve --release",
 
     "build": "npm run build:ts && npm run build:rs",
     "build:release": "npm run build:ts:release && npm run build:rs:release"
