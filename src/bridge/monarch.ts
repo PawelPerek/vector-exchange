@@ -762,6 +762,7 @@ export const monarchDefinition: languages.IMonarchLanguage = ({
         "vfwmsac.vf",
         "vfwnmsac.vv",
         "vfwnmsac.vf",
+        "la",
         "nop",
         "li",
         "mv",
