@@ -16,7 +16,7 @@ pub fn MemoryView(cx: Scope) -> impl IntoView {
     view! { cx, 
         <div class="bg-white rounded p-4 shadow-xl max-h-[75%] overflow-y-scroll">
             <h1 class="font-bold text-center border border-gray-200 py-6">Memory</h1>
-            <div class="grid grid-cols-[repeat(48,minmax(0,max-content))] px divide-x divide-y border border-gray-200">
+            <div class="grid grid-cols-[repeat(32,minmax(0,max-content))] px divide-x divide-y border border-gray-200">
                 {move || {
                     memory()
                         .iter()
@@ -25,7 +25,7 @@ pub fn MemoryView(cx: Scope) -> impl IntoView {
                             view! {
                                 cx, 
                                 <>
-                                <div class="px-0.5">
+                                <div class="px-0.5 text-center">
                                     {byte.to_string()}
                                 </div>
                                 <>

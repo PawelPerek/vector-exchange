@@ -25,7 +25,7 @@ pub fn FloatRegisters(cx: Scope) -> impl IntoView {
                         .enumerate()
                         .map(|(index, value)| {
                             view! { cx,
-                                <ScalarRegister name=freg_name(index) value=value.to_string()/>
+                                <ScalarRegister name=freg_name(index) value=format!("{:.2}", value)/>
                             }
                         })
                         .collect::<Vec<_>>()

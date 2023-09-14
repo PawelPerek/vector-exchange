@@ -108,13 +108,14 @@ fn StartButton(
     let core = expect_context::<RwSignal<MachineState>>(cx);
     let vlen = expect_context::<RwSignal<Vlen>>(cx);
     let highlighted_line = expect_context::<RwSignal<Highlight>>(cx);
-    let build_machine = create_write_slice(cx, core, move |machine, instructions| {
+    let build_machine = create_write_slice(cx, core, move |machine, (instructions, memory)| {
         let vu = VectorEngineBuilder::default().vlen(vlen()).build();
         
         let core = RvCoreBuilder::default()
-        .vec_engine(vu)
-        .instructions(instructions)
-        .build();
+            .vec_engine(vu)
+            .instructions(instructions)
+            .memory(memory)
+            .build();
 
         *machine = MachineState::On(core);
     });
@@ -123,11 +124,11 @@ fn StartButton(
         <button
             class="rounded-md bg-white/10 px-3.5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-white/20"
             on:click=move |_| {
-                let compile_result = Interpreter::compile(code());
+                let compile_result = Interpreter::compile(code(), 0x100);
                 match compile_result {
                     Err(vec) => set_errors(vec),
                     Ok(result) => {
-                        build_machine(result.instructions);
+                        build_machine((result.instructions, result.memory));
                         let map = result.instructions_addresses;
                         if let Some(first) = map.first() {
                             highlighted_line.set(Highlight::On(*first + 1));
